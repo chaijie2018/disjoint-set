@@ -4,8 +4,10 @@ pub struct SnapshotArray[T] {
   values: Array[T]
 }
 
-typealias Snapshot = Int
-
+pub struct Snapshot {
+  value_count: Int
+  undo_count: Int
+}
 pub fn length[T](self: SnapshotArray[T]) -> Int {
   self.values.length()
 }
@@ -30,6 +32,8 @@ fn rollback[T](self: SnapshotArray[T]) -> Unit {
 }
 
 pub fn start_snapshot[T](self: SnapshotArray[T]) -> Snapshot {
-  
-  1
+  {
+    value_count: self.values.length(),
+    undo_count: self.logs.start_snapshot()
+  }
 }

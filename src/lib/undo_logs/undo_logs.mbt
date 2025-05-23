@@ -4,6 +4,14 @@ pub enum Undo[T] {
   SetElem(Int, T)
 }
 
+pub fn newElem[T](index : Int) -> Undo[T] {
+  NewElem(index)
+}
+
+pub fn setElem[T](index : Int, value : T) -> Undo[T] {
+  SetElem(index, value)
+}
+
 typealias Snapshot = Int
 // /|
 // pub trait UndoLogs {
@@ -42,11 +50,12 @@ pub struct UndoLogs[T] {
 }
 
 pub fn new[T](capacity~: Int = 0) -> UndoLogs[T] {
-   {
+  {
     logs : Array::new(capacity=capacity),
     num_open_snapshots : 0
   }
 }
+
 
 // UndoLogs
 pub fn num_open_snapshots[T](self : UndoLogs[T]) -> Int {
