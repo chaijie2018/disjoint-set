@@ -1,9 +1,8 @@
 ///|
 pub enum Undo[T] {
   NewElem(Int)
-  SetElem(Int, Int)
+  SetElem(Int, T)
 }
-
 
 typealias Snapshot = Int
 ///|
