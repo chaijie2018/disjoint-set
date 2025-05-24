@@ -51,13 +51,17 @@ pub struct UndoLogs[T] {
 
 pub fn new[T](capacity~: Int = 0) -> UndoLogs[T] {
   {
-    logs : Array::new(capacity=capacity),
+    logs : Array::new(capacity~),
     num_open_snapshots : 0
   }
 }
 
 
 // UndoLogs
+
+pub fn in_snapshot[T](self : UndoLogs[T]) -> Bool {
+  self.num_open_snapshots > 0
+}
 pub fn num_open_snapshots[T](self : UndoLogs[T]) -> Int {
   self.num_open_snapshots
 }
