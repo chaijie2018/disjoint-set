@@ -5,6 +5,7 @@ test "init log" {
   logs.push(setElem(1, "test"))
 }
 
+///|
 test "clear log" {
   let logs = new()
   logs.push(newElem(0))
@@ -14,15 +15,17 @@ test "clear log" {
   assert_true!(logs.num_open_snapshots == 0)
 }
 
+///|
 test "extend log" {
   let logs = new()
   let new_logs = [newElem(0), setElem(1, "test")]
   logs.extend(new_logs.iter())
   assert_true!(logs.logs.length() == 2)
-  inspect!(logs.logs[0], content= "NewElem(0)")
-  inspect!(logs.logs[1], content= "SetElem(1, test)")
+  inspect!(logs.logs[0], content="NewElem(0)")
+  inspect!(logs.logs[1], content="SetElem(1, test)")
 }
 
+///|
 test "in_snapshot" {
   let logs = new()
   logs.push(newElem(0))
@@ -32,6 +35,7 @@ test "in_snapshot" {
   assert_true!(logs.in_snapshot())
 }
 
+///|
 test "num_open_snapshots" {
   let logs = new()
   let _ = logs.start_snapshot()
@@ -42,7 +46,7 @@ test "num_open_snapshots" {
   logs.commit(s1)
 }
 
-
+///|
 test "num_open_snapshots" {
   let logs = new()
   let s1 = logs.start_snapshot()
@@ -54,6 +58,7 @@ test "num_open_snapshots" {
   logs.commit(s1)
 }
 
+///|
 test "rollback" {
   let logs = new()
   let _ = logs.start_snapshot()
@@ -64,5 +69,8 @@ test "rollback" {
   let s3 = logs.start_snapshot()
   logs.push(setElem(3, "another_rollback_test"))
   logs.push(newElem(4))
-  inspect!(logs.rollback_to(s3), content= "[SetElem(3, another_rollback_test), NewElem(4)]")
+  inspect!(
+    logs.rollback_to(s3),
+    content="[SetElem(3, another_rollback_test), NewElem(4)]",
+  )
 }

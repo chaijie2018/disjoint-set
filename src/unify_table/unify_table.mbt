@@ -3,8 +3,6 @@ pub struct UnificationTable[T] {
   values : @snapshot_array.SnapshotArray[VarValue[T]]
 }
 
-// 如果 value 是 VarValue 的 value，那就是指向自己
-// 否则就是指向 VarIndex 的 value
 ///|
 pub struct VarIndex[T] {
   value : T

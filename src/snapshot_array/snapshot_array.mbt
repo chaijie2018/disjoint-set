@@ -32,7 +32,6 @@ fn[T] rollback(self : SnapshotArray[T]) -> Unit {
     NewElem(idx) => {
       let _ = self.values.pop().unwrap()
       guard idx == self.values.length() else { abort("Index mismatch") }
-
     }
     SetElem(idx, value) => self.values[idx] = value
   }
@@ -46,13 +45,12 @@ pub fn[T] in_snapshot(self : SnapshotArray[T]) -> Bool {
 }
 
 ///|
-pub fn[T] push(self : SnapshotArray[T], elem : T) -> Int {
+pub fn[T] push(self : SnapshotArray[T], elem : T) -> Unit {
   let len = self.values.length()
   self.values.push(elem)
   if self.in_snapshot() {
     self.logs.push(@logs.newElem(len))
   }
-  len
 }
 
 ///|

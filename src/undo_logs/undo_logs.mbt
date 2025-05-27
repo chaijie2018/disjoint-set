@@ -35,6 +35,10 @@ pub fn[T] in_snapshot(self : UndoLogs[T]) -> Bool {
   self.num_open_snapshots > 0
 }
 
+pub fn [T]length(self : UndoLogs[T]) -> Int {
+  self.logs.length()
+}
+
 ///|
 pub fn[T] num_open_snapshots(self : UndoLogs[T]) -> Int {
   self.num_open_snapshots

@@ -1,6 +1,0 @@
-{
-    "name": "bigorangeqwq/snapshot_array",
-    "import": [
-      { "path": "bigorangeqwq/unification_table/lib/undo_logs", "alias": "logs"}
-    ]
-}

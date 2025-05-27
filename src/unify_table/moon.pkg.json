@@ -1,6 +1,6 @@
 {
     "name": "bigorangeqwq/unify_table",
     "import": [
-      "bigorangeqwq/unification_table/lib/snapshot_array"
+      "bigorangeqwq/unification_table/snapshot_array"
     ]
 }
