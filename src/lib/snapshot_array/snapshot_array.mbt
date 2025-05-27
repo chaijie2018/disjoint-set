@@ -10,11 +10,9 @@ pub struct Snapshot {
   undo_count : Int
 }
 
-pub fn new[T](capacity~: Int = 0) -> SnapshotArray[T] {
-  {
-    logs : @logs.new(),
-    values : Array::new(capacity~)
-  }
+///|
+pub fn[T] new(capacity~ : Int = 0) -> SnapshotArray[T] {
+  { logs: @logs.new(), values: Array::new(capacity~) }
 }
 
 ///|
@@ -57,6 +55,7 @@ pub fn[T] push(self : SnapshotArray[T], elem : T) -> Int {
   len
 }
 
+///|
 pub fn[T] set(self : SnapshotArray[T], index : Int, value : T) -> Unit {
   if index >= self.values.length() {
     abort("Index out of bounds")
@@ -68,21 +67,21 @@ pub fn[T] set(self : SnapshotArray[T], index : Int, value : T) -> Unit {
   }
 }
 
+///|
 pub fn[T] set_all(self : SnapshotArray[T], values : (Int) -> T) -> Unit {
   if self.in_snapshot() {
     let old_values = self.values
-    for i in 0 ..< self.values.length() {
+    for i in 0..<self.values.length() {
       let new_value = values(i)
       self.values[i] = new_value
       self.logs.push(@logs.setElem(i, old_values[i]))
     }
   } else {
-    for i in 0 ..< self.values.length() {
+    for i in 0..<self.values.length() {
       self.values[i] = values(i)
     }
   }
 }
-
 
 // Snapshot
 ///|

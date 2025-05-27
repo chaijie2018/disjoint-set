@@ -27,6 +27,20 @@ pub struct VarValue[T] {
 }
 
 ///|
+pub fn[T : Eq] is_root(self : VarValue[T]) -> Bool {
+  return self.parent.value == self.value
+}
+
+///|
+pub fn[T : Eq] new_var_value(
+  value : T,
+  rank : Int,
+  parent : VarIndex[T]
+) -> VarValue[T] {
+  { value, rank, parent }
+}
+
+///|
 pub fn[T : Eq] redirect(self : VarValue[T], to : VarIndex[T]) -> Unit {
   self.parent = to
 }
@@ -52,13 +66,30 @@ pub fn[T : Eq] push(self : UnificationTable[T], value : T) -> VarIndex[T] {
   let index = self.values.push({
     value,
     rank: 0,
-    parent: { value, index: self.values.length() - 1 },
+    parent: { value, index: self.values.length() },
   })
   { value, index }
 }
 
 ///|
-pub fn[T : Eq] union(
+pub fn[T : Eq] push_var(
+  self : UnificationTable[T],
+  value : VarValue[T]
+) -> VarIndex[T] {
+  let index = self.values.push(value)
+  { value: value.value, index }
+}
+
+///|
+pub fn[T : Eq] reset_table(self : UnificationTable[T]) -> Unit {
+  for index, value in self.values.values {
+    value.rank = 0
+    value.parent = { value: value.value, index }
+  }
+}
+
+///|
+pub fn[T : Eq] unioned(
   self : UnificationTable[T],
   index1 : VarIndex[T],
   index2 : VarIndex[T]
