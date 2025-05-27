@@ -74,14 +74,13 @@ pub fn[T] has_changes(self : UndoLogs[T], snapshot : Snapshot) -> Bool {
 ///|
 pub fn[T] start_snapshot(self : UndoLogs[T]) -> Snapshot {
   self.num_open_snapshots += 1
-  self.num_open_snapshots
+  self.logs.length()
 }
 
 ///|
 fn[T] assert_valid_snapshot(self : UndoLogs[T], snapshot : Snapshot) -> Unit {
   guard self.logs.length() > snapshot else { abort("Invalid snapshot") }
   guard self.num_open_snapshots > 0 else { abort("No open snapshots") }
-
 }
 
 ///|
@@ -96,15 +95,31 @@ pub fn[T] commit(self : UndoLogs[T], snapshot : Snapshot) -> Unit {
   self.num_open_snapshots -= 1
 }
 
-// TODO: Implement 
-// Because the rollback function I dont know how to implement it
-// This Array only stores the logs, but it does not store the state of the array
 ///|
-pub fn[T] rollback_to(self : UndoLogs[T], snapshot : Snapshot) -> Unit {
+pub fn[T] rollback_to(self : UndoLogs[T], snapshot : Snapshot) -> Array[Undo[T]] {
   self.assert_valid_snapshot(snapshot)
+  
+  let logs = self.action_since_snapshot(snapshot).to_array()
+  for i in 0..<logs.length() {
+    let _ = self.pop();
+  }
+  logs
 }
 
 ///|
 pub fn[T] pop(self : UndoLogs[T]) -> Undo[T] {
   self.logs.pop().unwrap()
 }
+
+
+pub impl[T: Show] Show for Undo[T] with to_string(self) {
+  match self {
+    NewElem(index) => "NewElem(" + index.to_string() +")"
+    SetElem(index, value) => "SetElem(" + index.to_string() + ", " + value.to_string() + ")"
+  }
+}
+
+pub impl[T: Show] Show for Undo[T] with output(self, logger: &Logger) {
+  logger.write_string(self.to_string());
+}
+
