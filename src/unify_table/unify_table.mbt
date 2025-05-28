@@ -60,22 +60,20 @@ pub fn[T : Eq] new(capacity~ : Int) -> UnificationTable[T] {
 }
 
 ///|
-pub fn[T : Eq] push(self : UnificationTable[T], value : T) -> VarIndex[T] {
-  let index = self.values.push({
+pub fn[T : Eq] push(self : UnificationTable[T], value : T) -> Unit {
+  self.values.push({
     value,
     rank: 0,
     parent: { value, index: self.values.length() },
   })
-  { value, index }
 }
 
 ///|
 pub fn[T : Eq] push_var(
   self : UnificationTable[T],
   value : VarValue[T]
-) -> VarIndex[T] {
-  let index = self.values.push(value)
-  { value: value.value, index }
+) -> Unit {
+  self.values.push(value)
 }
 
 ///|
@@ -110,7 +108,7 @@ pub fn[T : Eq] update(
   index : VarIndex[T],
   value : (VarValue[T]) -> Unit
 ) -> Unit {
-  let current_value = self.get(index).unwrap()
+  let current_value = self.get(index.index).unwrap()
   value(current_value)
 }
 
@@ -140,8 +138,8 @@ pub fn[T : Eq] unite(
   if root1 == root2 {
     return root1
   }
-  let rank_a = self.get(root1).unwrap().rank
-  let rank_b = self.get(root2).unwrap().rank
+  let rank_a = self.get(root1.index).unwrap().rank
+  let rank_b = self.get(root2.index).unwrap().rank
   if rank_a < rank_b {
     self.redirect_root(rank_b, root1, root2, new_value)
     return root2
@@ -155,11 +153,25 @@ pub fn[T : Eq] unite(
 }
 
 ///|
-pub fn[T : Eq] get(
+pub fn[T : Eq] get(self : UnificationTable[T], index : Int) -> VarValue[T]? {
+  self.values.get(index)
+}
+
+///|
+pub fn[T : Eq] index(self : UnificationTable[T], index : Int) -> VarIndex[T] {
+  if index < 0 || index >= self.values.length() {
+    abort("Index out of bounds")
+  }
+  let value = self.values.get(index).unwrap()
+  { value: value.value, index }
+}
+
+///|
+pub fn[T : Eq] value(
   self : UnificationTable[T],
   index : VarIndex[T]
-) -> VarValue[T]? {
-  self.values.get(index.index)
+) -> VarValue[T] {
+  self.get(index.index).unwrap()
 }
 
 ///|
@@ -167,7 +179,7 @@ pub fn[T : Eq] find(
   self : UnificationTable[T],
   index : VarIndex[T]
 ) -> VarIndex[T] {
-  let value = self.get(index).unwrap()
+  let value = self.get(index.index).unwrap()
   if value.parent == index {
     return index
   }
@@ -177,4 +189,39 @@ pub fn[T : Eq] find(
     self.update(index, fn(value) { value.redirect(root) })
   }
   return root
+}
+
+///|
+pub impl[T : Show] Show for VarValue[T] with output(self, logger : &Logger) {
+  logger
+  ..write_string("VarValue { value: ")
+  ..write_object(self.value)
+  ..write_string(", rank: ")
+  ..write_object(self.rank)
+  ..write_string(", parent: ")
+  ..write_object(self.parent)
+  ..write_string(" }")
+}
+
+///|
+pub impl[T : Show] Show for VarIndex[T] with output(self, logger : &Logger) {
+  logger
+  ..write_string("VarIndex { value: ")
+  ..write_object(self.value)
+  ..write_string(", index: ")
+  ..write_object(self.index)
+  ..write_string(" }")
+}
+
+///|
+pub impl[T : Show] Show for UnificationTable[T] with output(
+  self,
+  logger : &Logger
+) {
+  logger.write_iter(
+    self.values.values.iter(),
+    prefix="UnificationTable[",
+    suffix=" ]",
+    sep=", ",
+  )
 }

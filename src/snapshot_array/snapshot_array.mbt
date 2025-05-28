@@ -27,7 +27,7 @@ pub fn[T] get(self : SnapshotArray[T], index : Int) -> T? {
 
 ///|
 fn[T] rollback(self : SnapshotArray[T]) -> Unit {
-  let undo = self.logs.pop()
+  let undo = self.logs.pop().unwrap()
   match undo {
     NewElem(idx) => {
       let _ = self.values.pop().unwrap()
@@ -66,17 +66,17 @@ pub fn[T] set(self : SnapshotArray[T], index : Int, value : T) -> Unit {
 }
 
 ///|
-pub fn[T] set_all(self : SnapshotArray[T], values : (Int) -> T) -> Unit {
+pub fn[T] set_all(self : SnapshotArray[T], func : (T) -> T) -> Unit {
   if self.in_snapshot() {
     let old_values = self.values
     for i in 0..<self.values.length() {
-      let new_value = values(i)
+      let new_value = func(self.values[i])
       self.values[i] = new_value
       self.logs.push(@logs.setElem(i, old_values[i]))
     }
   } else {
     for i in 0..<self.values.length() {
-      self.values[i] = values(i)
+      self.values[i] = func(self.values[i])
     }
   }
 }
@@ -106,4 +106,14 @@ pub fn[T] rollback_to(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
 ///|
 pub fn[T] commit(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
   self.logs.commit(snapshot.undo_count)
+}
+
+
+impl[T: Show] Show for SnapshotArray[T] with output(self, logger: &Logger) {
+  logger.write_iter(
+    self.values.iter(),
+    prefix="SnapshotArray[ ",
+    suffix=" ]",
+    sep=", "
+  )
 }
