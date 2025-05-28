@@ -1,4 +1,4 @@
-test "init snapshot array" {
+test "SnapshotArray::new" {
   let arr = new(capacity=5)
   assert_true!(arr.length() == 0)
   let _ = arr.start_snapshot()
@@ -7,7 +7,24 @@ test "init snapshot array" {
   assert_eq!(arr.logs.length(), 1)
 }
 
-test "get snapshot" {
+test "SnapshotArray::length" {
+  let arr = new(capacity=5)
+  assert_eq!(arr.length(), 0)
+  arr.push(1)
+  assert_eq!(arr.length(), 1)
+}
+
+
+test "SnapshotArray::get" {
+  let arr = new(capacity=5)
+  arr.push(1)
+  arr.push(2)
+  assert_eq!(arr.get(0).unwrap(), 1)
+  assert_eq!(arr.get(1).unwrap(), 2)
+}
+
+
+test "SnapshotArray::get" {
   let arr = new(capacity=5)
   let s1 = arr.start_snapshot()
   arr.push(1)
@@ -20,7 +37,14 @@ test "get snapshot" {
   assert_eq!(arr.get(1).unwrap(), 2)
 }
 
-test "rollback to snapshot" {
+test "SnapshotArray::in_snapshot" {
+  let arr: SnapshotArray[Int] = new()
+  inspect!(arr.in_snapshot(), content="false")
+  let _ = arr.start_snapshot()
+  inspect!(arr.in_snapshot(), content="true")
+}
+
+test "SnapshotArray::rollback" {
   let arr = new(capacity=5)
   let _ = arr.start_snapshot()
   arr.push(1)
