@@ -185,7 +185,7 @@ pub fn[T : Eq] push(self : UnificationTable[T], value : T) -> Unit {
 }
 
 ///|
-/// Adds a variable value directly to the unification table. Unlike `push` which
+/// Adds a variable value directly to the unification table. Unlike push which
 /// creates a new variable value from a given value, this function allows adding
 /// a pre-constructed variable value.
 ///
@@ -368,12 +368,9 @@ pub fn[T : Eq] set(
 /// transformation function.
 ///
 /// Parameters:
-///
-/// * `self` : The unification table containing the variable values.
 /// * `var_index` : The index of the variable value to be updated.
-/// * `transformer` : A function that takes a variable value and performs the
-/// desired modifications on it. The modifications are applied directly to the
-/// variable value.
+/// * `func` : A function that takes a variable value and performs the desired modifications on it.
+///  The modifications are applied to the variable value.
 ///
 /// Example:
 ///
@@ -392,10 +389,10 @@ pub fn[T : Eq] set(
 pub fn[T : Eq] update(
   self : UnificationTable[T],
   index : VarIndex,
-  value : (VarValue[T]) -> Unit
+  func : (VarValue[T]) -> Unit
 ) -> Unit {
   let current_value = self.get(index.index).unwrap()
-  value(current_value)
+  func(current_value)
 }
 
 ///|
@@ -441,12 +438,8 @@ pub fn[T : Eq] redirect_root(
 ///
 /// Parameters:
 ///
-/// * `self` : The unification table containing the variables.
 /// * `first` : The index of the first variable.
 /// * `second` : The index of the second variable.
-///
-/// Returns `true` if both variables have the same root node (i.e., belong to the
-/// same equivalence class), `false` otherwise.
 ///
 /// Example:
 ///
@@ -472,10 +465,9 @@ pub fn[T : Eq] unioned(
 }
 
 ///|
-/// Unites two variables in the unification table by merging their equivalence
-/// classes. Uses a union-find data structure with rank-based optimization to
-/// maintain balanced trees. When merging two equivalence classes, assigns the
-/// new value to the root of the resulting tree.
+/// Merges the equivalence classes of two variables in the unification table.
+/// Utilizes a union-find data structure with rank-based optimization to keep the tree balanced.
+/// After merging, assigns the specified new value to the root of the unified class.
 ///
 /// Parameters:
 ///
@@ -484,8 +476,6 @@ pub fn[T : Eq] unioned(
 /// * `second` : The index of the second variable to unite.
 /// * `value` : The new value to be assigned to the root of the merged
 /// equivalence class.
-///
-/// Returns the index of the root node of the merged equivalence class.
 ///
 /// Example:
 ///
@@ -525,18 +515,15 @@ pub fn[T : Eq] unite(
 }
 
 ///|
-/// Finds the root (representative) of a variable in the union-find data
-/// structure while performing path compression. When finding the root, updates
-/// the parent pointers of all nodes along the path to point directly to the
-/// root, which helps optimize future lookups.
+/// Finds the root (representative) of a variable in the union-find data structure,
+/// applying path compression for optimization. During the search, updates the parent
+/// pointers of all nodes along the path to point directly to the root.
 ///
 /// Parameters:
 ///
-/// * `self` : The unification table containing the variables.
 /// * `index` : The index of the variable whose root needs to be found.
 ///
-/// Returns the index of the root (representative) variable for the given
-/// variable index.
+/// Returns the index of the root (representative) variable for the given variable index.
 ///
 /// Example:
 ///
@@ -566,13 +553,11 @@ pub fn[T : Eq] find(self : UnificationTable[T], index : VarIndex) -> VarIndex {
 }
 
 ///|
-/// Finds the root value (representative) of a variable in the union-find data
-/// structure. Unlike `find` which returns the index of the root, this function
-/// returns the actual variable value at the root.
+/// Retrieves the root variable value (representative) for a given variable in the union-find data structure.
+/// this function returns the actual `VarValue[T]` at the root node.
 ///
 /// Parameters:
 ///
-/// * `table` : The unification table containing the variables.
 /// * `value` : The variable value whose root needs to be found.
 ///
 /// Returns the variable value at the root (representative) node.
@@ -603,13 +588,6 @@ pub fn[T : Eq] find_root(
 ///|
 /// Checks whether the unification table is currently in a snapshot state.
 ///
-/// Parameters:
-///
-/// * `self` : The unification table to check.
-///
-/// Returns `true` if the unification table is currently in a snapshot state,
-/// `false` otherwise.
-///
 /// Example:
 ///
 /// ```moonbit
@@ -625,17 +603,9 @@ pub fn[T] in_snapshot(self : UnificationTable[T]) -> Bool {
 }
 
 ///|
-/// Creates a new snapshot of the current state of the unification table. The
-/// snapshot captures the current state of all variable values and their
-/// relationships, allowing for later rollback or commit operations.
-///
-/// Parameters:
-///
-/// * `table` : The unification table whose state needs to be captured in a
-/// snapshot.
-///
-/// Returns a new `Snapshot` object representing the current state of the
-/// unification table.
+/// Creates a new snapshot of the current state of the unification table. 
+/// The snapshot captures the current state of all variable values,
+/// allowing for later rollback or commit operations.
 ///
 /// Example:
 ///
@@ -656,16 +626,14 @@ pub fn[T] start_snapshot(self : UnificationTable[T]) -> Snapshot {
 }
 
 ///|
-/// Restores the unification table to a previous state captured by the given
-/// snapshot. All changes made to the table after the snapshot was taken will be
-/// discarded.
+/// Restores the unification table to a previous state captured by the given snapshot.
+/// All changes made to the table after the snapshot was taken will be discarded.
+/// 
 ///
 /// Parameters:
 ///
-/// * `table` : The unification table to be rolled back.
-/// * `snapshot` : A previously created snapshot representing the state to
-/// restore to.
-///
+/// * `snapshot` : A previously created snapshot representing the state
+/// 
 /// Example:
 ///
 /// ```moonbit
@@ -683,14 +651,11 @@ pub fn[T] rollback_to(self : UnificationTable[T], snapshot : Snapshot) -> Unit {
 }
 
 ///|
-/// Commits the changes made after a snapshot, making them permanent and
-/// discarding the ability to rollback to that snapshot. This operation is the
-/// opposite of `rollback_to` - while `rollback_to` discards all changes made
-/// after the snapshot, `commit` keeps them and discards the snapshot itself.
+/// Commits the changes made after a snapshot, 
+/// making them permanent and discarding the ability to rollback to that snapshot. 
 ///
 /// Parameters:
 ///
-/// * `table` : The unification table containing the changes to be committed.
 /// * `snapshot` : A previously created snapshot that will be committed.
 ///
 /// Example:
@@ -708,6 +673,21 @@ pub fn[T] rollback_to(self : UnificationTable[T], snapshot : Snapshot) -> Unit {
 /// ```
 pub fn[T] commit(self : UnificationTable[T], snapshot : Snapshot) -> Unit {
   self.values.commit(snapshot.snapshot)
+}
+
+pub fn op_get[T : Eq](
+  self : UnificationTable[T],
+  index : Int
+) -> VarValue[T] {
+  return self.get(index).unwrap()
+}
+
+pub fn op_set[T : Eq](
+  self : UnificationTable[T],
+  index : Int,
+  value : VarValue[T]
+) -> Unit {
+  self.set(new_index(index), value)
 }
 
 ///|

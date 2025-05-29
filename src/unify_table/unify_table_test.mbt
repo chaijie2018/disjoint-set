@@ -55,16 +55,6 @@ test "UnificationTable::value" {
   )
 }
 
-///|
-test "UnificationTable::value" {
-  let table : UnificationTable[Int] = new(capacity=5)
-  table.push(42)
-  let index = new_index(0)
-  inspect!(
-    table.value(index),
-    content="VarValue { value: 42, rank: 0, parent: VarIndex { index: 0 } }",
-  )
-}
 
 ///|
 test "UnificationTable::union_test" {
