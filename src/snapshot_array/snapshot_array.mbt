@@ -6,7 +6,6 @@ pub struct SnapshotArray[T] {
 
 ///|
 pub struct Snapshot {
-  value_count : Int
   undo_count : Int
 }
 
@@ -242,7 +241,7 @@ pub fn[T] set_all(self : SnapshotArray[T], func : (T) -> T) -> Unit {
 /// }
 /// ```
 pub fn[T] start_snapshot(self : SnapshotArray[T]) -> Snapshot {
-  { value_count: self.values.length(), undo_count: self.logs.start_snapshot() }
+  {  undo_count: self.logs.start_snapshot() }
 }
 
 ///|
@@ -315,8 +314,7 @@ impl[T : Show] Show for SnapshotArray[T] with output(self, logger : &Logger) {
 impl Show for Snapshot with output(self, logger : &Logger) {
   logger
   ..write_string("Snapshot { value_count: ")
-  ..write_object(self.value_count)
-  ..write_string(", undo_count: ")
+  ..write_string("undo_count: ")
   ..write_object(self.undo_count)
   ..write_string(" }")
 }
