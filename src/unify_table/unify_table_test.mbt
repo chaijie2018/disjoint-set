@@ -2,7 +2,7 @@
 test "init table" {
   let table = new(capacity=5)
   table.push(1)
-  assert_true!(table.values.length() == 0)
+  assert_true!(table.values.length() == 1)
 }
 
 ///|
