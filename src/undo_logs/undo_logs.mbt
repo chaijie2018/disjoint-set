@@ -41,7 +41,8 @@ pub fn[T] from_iter(iter : Iter[Undo[T]], capacity~ : Int = 0) -> UndoLogs[T] {
 /// Checks UndoLogs for an open snapshot.
 /// Returns true if there is at least one open snapshot.
 /// 
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 /// test "UndoLogs::in_snapshot" {
 ///   let logs = new()
@@ -59,7 +60,8 @@ pub fn[T] in_snapshot(self : UndoLogs[T]) -> Bool {
 ///|
 /// Returns the number of actions in the undo log.
 /// 
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 /// test "UndoLogs::length" {
 ///   let logs = new()
@@ -74,7 +76,8 @@ pub fn[T] length(self : UndoLogs[T]) -> Int {
 ///|
 /// Returns the number of open snapshots.
 /// 
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 /// test "num_open_snapshots" {
 ///   let logs = new()
@@ -93,7 +96,8 @@ pub fn[T] num_open_snapshots(self : UndoLogs[T]) -> Int {
 ///|
 /// Pushes a new undo log entry onto the logs.
 /// 
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 /// test "UndoLogs::push" {
 ///   let logs = new()
@@ -109,7 +113,8 @@ pub fn[T] push(self : UndoLogs[T], log : Undo[T]) -> Unit {
 ///|
 /// Clears the undo logs and resets open snapshots.
 /// 
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 /// test "UndoLogs::clear" {
 ///   let logs = new()
@@ -130,7 +135,8 @@ pub fn[T] clear(self : UndoLogs[T]) -> Unit {
 ///|
 /// Extends the undo logs with an iterable of undo actions.
 ///
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 ///  let logs = new()
 ///  let new_logs = [newElem(0), setElem(1, "test")]
@@ -148,7 +154,8 @@ pub fn[T] extend(self : UndoLogs[T], logs : Iter[Undo[T]]) -> Unit {
 ///|
 /// Return the actions since the given snapshot.
 /// 
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 /// test "UndoLogs::action_since_snapshot" {
 ///   let logs = new()
@@ -171,7 +178,8 @@ pub fn[T] action_since_snapshot(
 ///|
 /// Checks if there are any changes since the given snapshot.
 /// 
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 /// test "UndoLogs::has_changes" {
 ///   let logs = new()
@@ -188,7 +196,8 @@ pub fn[T] has_changes(self : UndoLogs[T], snapshot : Snapshot) -> Bool {
 ///|
 /// Starts a new snapshot and returns its identifier.
 /// 
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 /// test "UndoLogs::start_snapshot" {
 ///   let logs = new()
@@ -214,7 +223,8 @@ fn[T] assert_valid_snapshot(self : UndoLogs[T], snapshot : Snapshot) -> Unit {
 /// Commits the current snapshot information. 
 /// When the current snapshot is the root snapshot, it clears all logs.
 /// 
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 /// test "UndoLogs::commit" {
 ///   let logs = new()
@@ -240,7 +250,8 @@ pub fn[T] commit(self : UndoLogs[T], snapshot : Snapshot) -> Unit {
 /// Rolls back the undo logs to the given snapshot.
 /// Returns the actions that were rolled back.
 /// 
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 /// test "UndoLogs::rollback_to" {
 ///   let logs = new()
@@ -272,7 +283,8 @@ pub fn[T] rollback_to(
 ///|
 /// Pops the last undo log entry from the logs.
 /// 
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 /// test "UndoLogs::pop" {
 ///   let logs = new()
@@ -290,7 +302,8 @@ pub fn[T] pop(self : UndoLogs[T]) -> Undo[T]? {
 ///|
 /// Returns the last undo log entry.
 /// 
-/// Examples
+/// Example:
+/// 
 /// ```moonbit
 /// test "UndoLogs::last" {
 ///   let logs = new()
