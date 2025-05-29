@@ -56,7 +56,36 @@ test "SnapshotArray::rollback" {
   assert_eq!(arr.length(), 1)
 }
 
-test "set and get" {
+
+test "SnapshotArray::push" {
+  let arr = new()
+  let snapshot = arr.start_snapshot()
+  arr.push(1)
+  inspect!(arr.length(), content="1")
+  inspect!(arr.get(0).unwrap(), content="1")
+  arr.rollback_to(snapshot)
+  inspect!(arr.length(), content="0")
+}
+
+test "SnapshotArray::extend" {
+  let arr = new()
+  arr.extend([1, 2, 3].iter())
+  inspect!(arr.length(), content="3")
+  inspect!(arr.get(0).unwrap(), content="1")
+}
+
+test "SnapshotArray::set" {
+  let arr = new()
+  arr.push(1)
+  let snapshot = arr.start_snapshot()
+  arr.set(0, 42)
+  inspect!(arr.get(0).unwrap(), content="42")
+  arr.rollback_to(snapshot)
+  inspect!(arr.get(0).unwrap(), content="1")
+}
+
+
+test "SnapshotArray::set_and_get" {
   let arr = new(capacity=5)
   arr.push(1)
   arr.push(2)
@@ -72,7 +101,17 @@ test "set and get" {
   assert_eq!(actions.length(), 1)
 }
 
-test "set all" {
+test "SnapshotArray::set_all" {
+  let arr = new()
+  arr.extend([1, 2, 3].iter())
+  let snapshot = arr.start_snapshot()
+  arr.set_all(fn(x) { x * 2 })
+  inspect!(arr.get(0).unwrap(), content="2")
+  arr.rollback_to(snapshot)
+  inspect!(arr.get(0).unwrap(), content="1")
+}
+
+test "SnapshotArray::set_all_with_snapshot" {
   let arr = new(capacity=5)
   let _ = arr.start_snapshot()
   let s1 = arr.start_snapshot()
@@ -90,5 +129,33 @@ test "set all" {
   assert_eq!(actions.length(), 6)
   let actions = arr.action_since_snapshot(s2)
   assert_eq!(actions.length(), 2)
-  
+}
+
+test "SnapshotArray::start_snapshot" {
+  let arr = new()
+  arr.push(1)
+  let snapshot = arr.start_snapshot()
+  arr.push(2)
+  arr.rollback_to(snapshot)
+  inspect!(arr.length(), content="1")
+}
+
+
+test "SnapshotArray::action_since_snapshot" {
+  let arr = new()
+  let snapshot = arr.start_snapshot()
+  arr.push(1)
+  arr.push(2)
+  inspect!(arr.action_since_snapshot(snapshot).length(), content="2")
+}
+
+test "SnapshotArray::rollback_to" {
+  let arr = new()
+  arr.push(1)
+  let snapshot = arr.start_snapshot()
+  arr.push(2)
+  arr.push(3)
+  arr.rollback_to(snapshot)
+  inspect!(arr.length(), content="1")
+  inspect!(arr.get(0).unwrap(), content="1")
 }
