@@ -4,71 +4,206 @@ pub struct UnificationTable[T] {
 }
 
 ///|
-pub struct VarIndex[T] {
-  value : T
-  index : Int
+pub struct Snapshot {
+  snapshot : @snapshot_array.Snapshot
 }
 
 ///|
-impl[T : Eq] Eq for VarIndex[T] with op_equal(self, other) {
-  if self.value == other.value {
-    return true
-  }
-  return false
+pub struct VarIndex {
+  index : Int
 }
 
 ///|
 pub struct VarValue[T] {
   mut value : T
   mut rank : Int
-  mut parent : VarIndex[T]
+  mut parent : VarIndex
 }
 
 ///|
-pub fn[T : Eq] is_root(self : VarValue[T]) -> Bool {
-  return self.parent.value == self.value
-}
-
-///|
+/// Creates a new variable value with the specified value, rank, and parent index.
+///
+/// Parameters:
+///
+/// * `value`: The initial value of type `T` to store in the variable.
+/// * `rank`: The initial rank of the variable in the union-find tree.
+/// * `parent`: The index of the parent variable in the union-find structure.
+///
+/// Returns a new `VarValue[T]` instance containing the specified value, rank,
+/// and parent index.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "VarValue::new_var_value" {
+///   let index = new_index(0)
+///   let var_value = new_var_value(42, 0, index)
+///   inspect!(var_value.value, content="42")
+///   inspect!(var_value.rank, content="0")
+///   inspect!(var_value.parent.index, content="0")
+/// }
+/// ```
 pub fn[T : Eq] new_var_value(
   value : T,
   rank : Int,
-  parent : VarIndex[T]
+  parent : VarIndex
 ) -> VarValue[T] {
   { value, rank, parent }
 }
 
 ///|
-pub fn[T : Eq] redirect(self : VarValue[T], to : VarIndex[T]) -> Unit {
+/// Redirects the parent pointer of a variable value to a new variable index.
+///
+/// Parameters:
+///
+/// * `to`: The new parent index to point to.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "VarValue::redirect" {
+///   let old_parent = new_index(0)
+///   let new_parent = new_index(1)
+///   let var_value = new_var_value(42, 0, old_parent)
+///   var_value.redirect(new_parent)
+///   inspect!(var_value.parent.index, content="1")
+/// }
+/// ```
+pub fn[T : Eq] redirect(self : VarValue[T], to : VarIndex) -> Unit {
   self.parent = to
 }
 
 ///|
+/// Updates the root node of a union-find tree with new rank and value.
+///
+/// Parameters:
+///
+/// * `rank`: The new rank value to be assigned.
+/// * `value`: The new value of type `T` to be stored.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "VarValue::root" {
+///   let index = VarIndex::new_index(0)
+///   let var_value = new_var_value(42, 0, index)
+///   var_value.root(1, 100)
+///   inspect!(var_value.value, content="100")
+///   inspect!(var_value.rank, content="1")
+/// }
+/// ```
 pub fn[T : Eq] root(self : VarValue[T], rank : Int, value : T) -> Unit {
   self.value = value
   self.rank = rank
 }
 
 ///|
-pub fn[T : Eq] new_index(value : T, index : Int) -> VarIndex[T] {
-  { value, index }
+/// Updates the root node of a union-find tree with new value.
+/// 
+/// Parameters:
+/// * `value`: The new value of type `T` to be stored.
+/// 
+/// Example:
+/// ```moonbit
+/// ///|
+/// test "VarValue::modify" {
+///   let index = VarIndex::new_index(0)
+///   let var_value = new_var_value(42, 0, index)
+///   var_value.modify(100)
+///   inspect!(var_value.value, content="100")
+/// }
+pub fn[T : Eq] modify(self : VarValue[T], value : T) -> Unit {
+  self.value = value
 }
 
 ///|
+/// Creates a new `VarIndex` with the specified index.
+pub fn new_index(index : Int) -> VarIndex {
+  { index, }
+}
+
+///|
+/// Creates a new `Snapshot` from a `snapshot_array.Snapshot`.
+pub fn new_snapshot(snapshot : @snapshot_array.Snapshot) -> Snapshot {
+  { snapshot, }
+}
+
+///|
+pub impl[T : Eq] Eq for VarValue[T] with op_equal(self, other) {
+  return self.value == other.value && self.parent == other.parent
+}
+
+///|
+impl Eq for VarIndex with op_equal(self, other) {
+  return self.index == other.index
+}
+
+///|
+/// Creates a new unification table with a specified initial capacity.
+///
+/// Parameters:
+///
+/// * `capacity` : The initial capacity of the table, indicating how many
+/// variables can be stored initially.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::new" {
+///   let table : UnificationTable[Int] = new(capacity=10)
+///   inspect!(table.values.length(), content="0")
+/// }
+/// ```
 pub fn[T : Eq] new(capacity~ : Int) -> UnificationTable[T] {
   { values: @snapshot_array.new(capacity~) }
 }
 
 ///|
+/// Adds a new variable to the unification table.
+/// The new variable is initially assigned a rank of 0 and is set as its own parent
+///
+/// Parameters:
+///
+/// * `value` : The value to be associated with the new variable.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::push" {
+///   let table = new(capacity=5)
+///   table.push(1)
+///   assert_true!(table.values.length() == 1)
+/// }
+/// ```
 pub fn[T : Eq] push(self : UnificationTable[T], value : T) -> Unit {
-  self.values.push({
-    value,
-    rank: 0,
-    parent: { value, index: self.values.length() },
-  })
+  self.values.push({ value, rank: 0, parent: new_index(self.values.length()) })
 }
 
 ///|
+/// Adds a variable value directly to the unification table. Unlike `push` which
+/// creates a new variable value from a given value, this function allows adding
+/// a pre-constructed variable value.
+///
+/// Parameters:
+///
+/// * `var_value` : A pre-constructed variable value to be added to the table.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::push_var" {
+///   let table : UnificationTable[Int] = new(capacity=5)
+///   let var_value = new_var_value(42, 0, new_index(0))
+///   table.push_var(var_value)
+///   inspect!(table.values.length(), content="1")
+/// }
+/// ```
 pub fn[T : Eq] push_var(
   self : UnificationTable[T],
   value : VarValue[T]
@@ -77,35 +212,186 @@ pub fn[T : Eq] push_var(
 }
 
 ///|
-pub fn[T : Eq] reset_table(self : UnificationTable[T]) -> Unit {
+/// Retrieves a variable value at the specified index from the unification table.
+///
+/// Parameters:
+///
+/// * `index`: The integer index of the desired variable value in the table.
+///
+/// Returns an optional `VarValue[T]`. Returns `Some(value)` if the index is
+/// within bounds, or `None` if the index is out of bounds.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+///test "UnificationTable::get" {
+///  let table : UnificationTable[Int] = new(capacity=5)
+///  table.push(42)
+///  inspect!(
+///    table.get(0),
+///    content="Some(VarValue { value: 42, rank: 0, parent: VarIndex { index: 0 } })",
+///  )
+///  inspect!(table.get(1), content="None")
+///}
+/// ```
+pub fn[T : Eq] get(self : UnificationTable[T], index : Int) -> VarValue[T]? {
+  self.values.get(index)
+}
+
+///|
+/// Retrieves the parent index of a variable at the specified position in the
+/// unification table. Aborts if the index is out of bounds.
+///
+/// Parameters:
+///
+/// * `self` : The unification table containing the variables.
+/// * `index` : The position of the variable in the table.
+///
+/// Returns the parent index (`VarIndex`) of the variable at the specified
+/// position.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::index" {
+///   let table : UnificationTable[Int] = new(capacity=5)
+///   table.push(42)
+///   inspect!(table.index(0).index, content="0")
+/// }
+/// 
+/// ///|
+/// test "panic UnificationTable::index/out_of_bounds" {
+///   let table : UnificationTable[Int] = new(capacity=5)
+///   let _ = table.index(-1)
+/// }
+/// ```
+pub fn[T : Eq] index(self : UnificationTable[T], index : Int) -> VarIndex {
+  if index < 0 || index >= self.values.length() {
+    abort("Index out of bounds")
+  }
+  let value = self.values.get(index).unwrap()
+  value.parent
+}
+
+///|
+/// Retrieves the variable value from the unification table at the given VarIndex.
+///
+/// Parameters:
+///
+/// * `index` : A variable index indicating the position to look up.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::value" {
+///   let table : UnificationTable[Int] = new(capacity=5)
+///   table.push(42)
+///   let index = new_index(0)
+///   inspect!(
+///     table.value(index),
+///     content="VarValue { value: 42, rank: 0, parent: VarIndex { index: 0 } }",
+///   )
+/// }
+/// ```
+pub fn[T : Eq] value(
+  self : UnificationTable[T],
+  index : VarIndex
+) -> VarValue[T] {
+  self.get(index.index).unwrap()
+}
+
+///|
+/// Resets all variables in the unification table to their initial states. After
+/// reset, each variable becomes its own representative (parent points to itself)
+/// with a rank of 0.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::reset" {
+///   let table : UnificationTable[Int] = new(capacity=2)
+///   table.push(1)
+///   table.push(2)
+///   let _ = table.unite(new_index(0), new_index(1), 42)
+///   table.reset()
+///   inspect!(
+///     table.unioned(new_index(0), new_index(1)),
+///     content="false",
+///   )
+/// }
+/// ```
+pub fn[T : Eq] reset(self : UnificationTable[T]) -> Unit {
   for index, value in self.values.values {
     value.rank = 0
-    value.parent = { value: value.value, index }
+    value.parent = new_index(index)
   }
 }
 
 ///|
-pub fn[T : Eq] unioned(
-  self : UnificationTable[T],
-  index1 : VarIndex[T],
-  index2 : VarIndex[T]
-) -> Bool {
-  return self.find(index1) == self.find(index2)
-}
-
-///|
+/// Sets the variable value at the specified index in the unification table.
+///
+/// Parameters:
+///
+/// * `index` : A variable index indicating the position where the value should
+/// be set.
+/// * `value` : The new variable value to be stored at the specified position.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::set" {
+///   let table : UnificationTable[Int] = new(capacity=5)
+///   table.push(42)
+///   let new_value = new_var_value(100, 0, new_index(0))
+///   table.set(new_index(0), new_value)
+///   inspect!(
+///     table.get(0),
+///     content="Some(VarValue { value: 100, rank: 0, parent: VarIndex { index: 0 } })",
+///   )
+/// }
+/// ```
 pub fn[T : Eq] set(
   self : UnificationTable[T],
-  index : VarIndex[T],
+  index : VarIndex,
   value : VarValue[T]
 ) -> Unit {
   self.values.set(index.index, value)
 }
 
 ///|
+/// Updates a variable value in the unification table by applying a
+/// transformation function.
+///
+/// Parameters:
+///
+/// * `self` : The unification table containing the variable values.
+/// * `var_index` : The index of the variable value to be updated.
+/// * `transformer` : A function that takes a variable value and performs the
+/// desired modifications on it. The modifications are applied directly to the
+/// variable value.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::update" {
+///   let table : UnificationTable[Int] = new(capacity=5)
+///   table.push(42)
+///   table.update(new_index(0), fn(var) { var.value = 100 })
+///   inspect!(
+///     table.get(0),
+///     content="Some(VarValue { value: 100, rank: 0, parent: VarIndex { index: 0 } })",
+///   )
+/// }
+/// ```
 pub fn[T : Eq] update(
   self : UnificationTable[T],
-  index : VarIndex[T],
+  index : VarIndex,
   value : (VarValue[T]) -> Unit
 ) -> Unit {
   let current_value = self.get(index.index).unwrap()
@@ -113,11 +399,34 @@ pub fn[T : Eq] update(
 }
 
 ///|
+/// Updates the root node in a union-find data structure by redirecting an old
+/// root to a new root and updating the rank and value of the new root.
+///
+/// Parameters:
+///
+/// * `self` : The unification table containing the variable values.
+/// * `new_rank` : The new rank value to be assigned to the root node.
+/// * `old_index` : The index of the old root node that will be redirected.
+/// * `new_index` : The index of the new root node.
+/// * `new_value` : The value to be stored in the new root node.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::redirect_root" {
+///   let table : UnificationTable[Int] = new(capacity=2)
+///   table.push(1)
+///   table.push(2)
+///   table.redirect_root(1, new_index(0), new_index(1), 42)
+///   inspect!(table.find(new_index(0)).index, content="1")
+/// }
+/// ```
 pub fn[T : Eq] redirect_root(
   self : UnificationTable[T],
   new_rank : Int,
-  old_index : VarIndex[T],
-  new_index : VarIndex[T],
+  old_index : VarIndex,
+  new_index : VarIndex,
   new_value : T
 ) -> Unit {
   self.update(old_index, fn(old_value) { old_value.redirect(new_index) })
@@ -127,12 +436,75 @@ pub fn[T : Eq] redirect_root(
 }
 
 ///|
+/// Checks if two variables in the unification table belong to the same
+/// equivalence class by comparing their root nodes.
+///
+/// Parameters:
+///
+/// * `self` : The unification table containing the variables.
+/// * `first` : The index of the first variable.
+/// * `second` : The index of the second variable.
+///
+/// Returns `true` if both variables have the same root node (i.e., belong to the
+/// same equivalence class), `false` otherwise.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::unioned" {
+///   let table : UnificationTable[Int] = new(capacity=2)
+///   table.push(1)
+///   table.push(2)
+///   let _ = table.unite(table.index(0),table.index(1), 42)
+///   inspect!(
+///     table.unioned(new_index(0), new_index(1)),
+///     content="true",
+///   )
+/// }
+/// ```
+pub fn[T : Eq] unioned(
+  self : UnificationTable[T],
+  index1 : VarIndex,
+  index2 : VarIndex
+) -> Bool {
+  return self.find(index1) == self.find(index2)
+}
+
+///|
+/// Unites two variables in the unification table by merging their equivalence
+/// classes. Uses a union-find data structure with rank-based optimization to
+/// maintain balanced trees. When merging two equivalence classes, assigns the
+/// new value to the root of the resulting tree.
+///
+/// Parameters:
+///
+/// * `table` : The unification table containing the variables.
+/// * `first` : The index of the first variable to unite.
+/// * `second` : The index of the second variable to unite.
+/// * `value` : The new value to be assigned to the root of the merged
+/// equivalence class.
+///
+/// Returns the index of the root node of the merged equivalence class.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::unite" {
+///   let table : UnificationTable[Int] = new(capacity=2)
+///   table.push(1)
+///   table.push(2)
+///   let root = table.unite(table.index(0),table.index(1), 42)
+///   inspect!(table.value(root).value, content="42")
+/// }
+/// ```
 pub fn[T : Eq] unite(
   self : UnificationTable[T],
-  index1 : VarIndex[T],
-  index2 : VarIndex[T],
+  index1 : VarIndex,
+  index2 : VarIndex,
   new_value : T
-) -> VarIndex[T] {
+) -> VarIndex {
   let root1 = self.find(index1)
   let root2 = self.find(index2)
   if root1 == root2 {
@@ -153,32 +525,34 @@ pub fn[T : Eq] unite(
 }
 
 ///|
-pub fn[T : Eq] get(self : UnificationTable[T], index : Int) -> VarValue[T]? {
-  self.values.get(index)
-}
-
-///|
-pub fn[T : Eq] index(self : UnificationTable[T], index : Int) -> VarIndex[T] {
-  if index < 0 || index >= self.values.length() {
-    abort("Index out of bounds")
-  }
-  let value = self.values.get(index).unwrap()
-  { value: value.value, index }
-}
-
-///|
-pub fn[T : Eq] value(
-  self : UnificationTable[T],
-  index : VarIndex[T]
-) -> VarValue[T] {
-  self.get(index.index).unwrap()
-}
-
-///|
-pub fn[T : Eq] find(
-  self : UnificationTable[T],
-  index : VarIndex[T]
-) -> VarIndex[T] {
+/// Finds the root (representative) of a variable in the union-find data
+/// structure while performing path compression. When finding the root, updates
+/// the parent pointers of all nodes along the path to point directly to the
+/// root, which helps optimize future lookups.
+///
+/// Parameters:
+///
+/// * `self` : The unification table containing the variables.
+/// * `index` : The index of the variable whose root needs to be found.
+///
+/// Returns the index of the root (representative) variable for the given
+/// variable index.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::find" {
+///   let table : UnificationTable[Int] = new(capacity=3)
+///   table.push(1)
+///   table.push(2)
+///   table.push(3)
+///   let _ = table.unite(table.index(0),table.index(1), 42)
+///   let root = table.find(table.index(0))
+///   inspect!(root.index, content="0")
+/// }
+/// ```
+pub fn[T : Eq] find(self : UnificationTable[T], index : VarIndex) -> VarIndex {
   let value = self.get(index.index).unwrap()
   if value.parent == index {
     return index
@@ -189,6 +563,151 @@ pub fn[T : Eq] find(
     self.update(index, fn(value) { value.redirect(root) })
   }
   return root
+}
+
+///|
+/// Finds the root value (representative) of a variable in the union-find data
+/// structure. Unlike `find` which returns the index of the root, this function
+/// returns the actual variable value at the root.
+///
+/// Parameters:
+///
+/// * `table` : The unification table containing the variables.
+/// * `value` : The variable value whose root needs to be found.
+///
+/// Returns the variable value at the root (representative) node.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::find_root" {
+///   let table : UnificationTable[Int] = new(capacity=2)
+///   table.push(1)
+///   table.push(2)
+///   let _ = table.unite(table.index(0), table.index(1), 42)
+///   let value = table.get(0).unwrap()
+///   let root = table.find_root(value)
+///   inspect!(root.value, content="42")
+/// }
+/// ```
+pub fn[T : Eq] find_root(
+  self : UnificationTable[T],
+  value : VarValue[T]
+) -> VarValue[T] {
+  let root_index = self.find(value.parent)
+  return self.get(root_index.index).unwrap()
+}
+
+// Snapshot
+///|
+/// Checks whether the unification table is currently in a snapshot state.
+///
+/// Parameters:
+///
+/// * `self` : The unification table to check.
+///
+/// Returns `true` if the unification table is currently in a snapshot state,
+/// `false` otherwise.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::in_snapshot" {
+///   let table : UnificationTable[Int] = new(capacity=5)
+///   let _ = table.start_snapshot()
+///   assert_true!(table.in_snapshot())
+/// }
+/// ```
+pub fn[T] in_snapshot(self : UnificationTable[T]) -> Bool {
+  self.values.in_snapshot()
+}
+
+///|
+/// Creates a new snapshot of the current state of the unification table. The
+/// snapshot captures the current state of all variable values and their
+/// relationships, allowing for later rollback or commit operations.
+///
+/// Parameters:
+///
+/// * `table` : The unification table whose state needs to be captured in a
+/// snapshot.
+///
+/// Returns a new `Snapshot` object representing the current state of the
+/// unification table.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::start_snapshot" {
+///   let table : UnificationTable[Int] = new(capacity=5)
+///   table.push(42)
+///   let snapshot = table.start_snapshot()
+///   table.push(100)
+///   table.rollback_to(snapshot)
+///   inspect!(table.values.length(), content="1")
+/// }
+/// ```
+pub fn[T] start_snapshot(self : UnificationTable[T]) -> Snapshot {
+  let snapshot = self.values.start_snapshot()
+  new_snapshot(snapshot)
+}
+
+///|
+/// Restores the unification table to a previous state captured by the given
+/// snapshot. All changes made to the table after the snapshot was taken will be
+/// discarded.
+///
+/// Parameters:
+///
+/// * `table` : The unification table to be rolled back.
+/// * `snapshot` : A previously created snapshot representing the state to
+/// restore to.
+///
+/// Example:
+///
+/// ```moonbit
+/// test "UnificationTable::start_snapshot" {
+///   let table : UnificationTable[Int] = new(capacity=5)
+///   table.push(42)
+///   let snapshot = table.start_snapshot()
+///   table.push(100)
+///   table.rollback_to(snapshot)
+///   inspect!(table.values.length(), content="1")
+/// }
+/// ```
+pub fn[T] rollback_to(self : UnificationTable[T], snapshot : Snapshot) -> Unit {
+  self.values.rollback_to(snapshot.snapshot)
+}
+
+///|
+/// Commits the changes made after a snapshot, making them permanent and
+/// discarding the ability to rollback to that snapshot. This operation is the
+/// opposite of `rollback_to` - while `rollback_to` discards all changes made
+/// after the snapshot, `commit` keeps them and discards the snapshot itself.
+///
+/// Parameters:
+///
+/// * `table` : The unification table containing the changes to be committed.
+/// * `snapshot` : A previously created snapshot that will be committed.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "UnificationTable::commit" {
+///   let table : UnificationTable[Int] = new(capacity=5)
+///   table.push(42)
+///   let snapshot = table.start_snapshot()
+///   table.push(100)
+///   table.commit(snapshot)
+///   inspect!(table.values.length(), content="2")
+/// }
+/// ```
+pub fn[T] commit(self : UnificationTable[T], snapshot : Snapshot) -> Unit {
+  self.values.commit(snapshot.snapshot)
 }
 
 ///|
@@ -204,11 +723,9 @@ pub impl[T : Show] Show for VarValue[T] with output(self, logger : &Logger) {
 }
 
 ///|
-pub impl[T : Show] Show for VarIndex[T] with output(self, logger : &Logger) {
+pub impl Show for VarIndex with output(self, logger : &Logger) {
   logger
-  ..write_string("VarIndex { value: ")
-  ..write_object(self.value)
-  ..write_string(", index: ")
+  ..write_string("VarIndex { index: ")
   ..write_object(self.index)
   ..write_string(" }")
 }
