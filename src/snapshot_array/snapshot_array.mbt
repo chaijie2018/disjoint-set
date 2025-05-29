@@ -241,7 +241,7 @@ pub fn[T] set_all(self : SnapshotArray[T], func : (T) -> T) -> Unit {
 /// }
 /// ```
 pub fn[T] start_snapshot(self : SnapshotArray[T]) -> Snapshot {
-  {  undo_count: self.logs.start_snapshot() }
+  { undo_count: self.logs.start_snapshot() }
 }
 
 ///|

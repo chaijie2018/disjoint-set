@@ -126,6 +126,7 @@ test "UndoLogs::rollback_to" {
   )
 }
 
+///|
 test "UndoLogs::pop" {
   let logs = new()
   logs.push(newElem(0))
@@ -135,6 +136,7 @@ test "UndoLogs::pop" {
   assert_eq!(logs.length(), 1)
 }
 
+///|
 test "UndoLogs::last" {
   let logs = new()
   logs.push(newElem(0))
@@ -143,6 +145,7 @@ test "UndoLogs::last" {
   assert_eq!(last, setElem(1, "test"))
 }
 
+///|
 test "UndoLogs::commit" {
   let logs = new()
   let s1 = logs.start_snapshot()
