@@ -55,7 +55,6 @@ test "UnificationTable::value" {
   )
 }
 
-
 ///|
 test "UnificationTable::union_test" {
   let table = new(capacity=5)

@@ -675,14 +675,13 @@ pub fn[T] commit(self : UnificationTable[T], snapshot : Snapshot) -> Unit {
   self.values.commit(snapshot.snapshot)
 }
 
-pub fn op_get[T : Eq](
-  self : UnificationTable[T],
-  index : Int
-) -> VarValue[T] {
+///|
+pub fn[T : Eq] op_get(self : UnificationTable[T], index : Int) -> VarValue[T] {
   return self.get(index).unwrap()
 }
 
-pub fn op_set[T : Eq](
+///|
+pub fn[T : Eq] op_set(
   self : UnificationTable[T],
   index : Int,
   value : VarValue[T]
