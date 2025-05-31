@@ -328,6 +328,7 @@ pub fn[T : Eq] reset(self : UnificationTable[T]) -> Unit {
     value.rank = 0
     value.parent = new_index(index)
   }
+  self.values.commit_all()
 }
 
 ///|

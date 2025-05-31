@@ -144,6 +144,29 @@ pub fn[T] push(self : SnapshotArray[T], elem : T) -> Unit {
 }
 
 ///|
+/// Clears all elements from the snapshot array and resets it to an empty state.
+/// This operation removes all stored values and clears the undo logs,
+/// effectively resetting the array to its initial state.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "SnapshotArray::reset" {
+///   let arr : SnapshotArray[Int] = SnapshotArray::new()
+///   arr.push(1)
+///   arr.push(2)
+///   inspect!(arr.length(), content="2")
+///   arr.reset()
+///   inspect!(arr.length(), content="0")
+/// }
+/// ```
+pub fn[T] reset(self : SnapshotArray[T]) -> Unit {
+  self.values.clear()
+  self.logs.clear()
+}
+
+///|
 /// Extends the array by appending all elements from the given iterator.
 ///
 /// Example:
@@ -328,8 +351,67 @@ pub fn[T] record(self : SnapshotArray[T], undo : @logs.Undo[T]) -> Bool {
 }
 
 ///|
+/// Commits all changes made since the specified snapshot, making them permanent
+/// and removing the corresponding undo logs.
+///
+/// This operation finalizes all modifications recorded between the snapshot and
+/// the current state, preventing them from being rolled back. The undo logs
+/// associated with these changes are cleared, but snapshots created before the
+/// committed snapshot remain valid.
+///
+/// Parameters:
+///
+/// * `snapshot` : The snapshot marking the point from which to commit all
+/// subsequent changes.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "SnapshotArray::commit" {
+///   let arr = SnapshotArray::new()
+///   let snapshot1 = arr.start_snapshot()
+///   arr.push(1)
+///   let snapshot2 = arr.start_snapshot()
+///   arr.push(2)
+///   arr.commit(snapshot2)
+///   inspect!(arr.length(), content="2")
+///   // Changes after snapshot2 are committed, but can still rollback to snapshot1
+///   arr.rollback_to(snapshot1)
+///   inspect!(arr.length(), content="0")
+/// }
+/// ```
 pub fn[T] commit(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
   self.logs.commit(snapshot.undo_count)
+}
+
+
+///|
+/// Commits all changes permanently by clearing all undo logs, making all
+/// snapshots invalid.
+///
+/// This operation removes all recorded undo actions from the logs, effectively
+/// making all changes permanent and irreversible. After calling this function,
+/// any existing snapshots become invalid and cannot be used for rollback
+/// operations.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "SnapshotArray::commit_all" {
+///   let arr = SnapshotArray::new()
+///   let snapshot = arr.start_snapshot()
+///   arr.push(1)
+///   arr.push(2)
+///   inspect!(arr.in_snapshot(), content="true")
+///   arr.commit_all()
+///   inspect!(arr.in_snapshot(), content="false")
+///   inspect!(arr.length(), content="2")
+/// }
+/// ```
+pub fn[T] commit_all(self : SnapshotArray[T]) -> Unit {
+  self.logs.clear()
 }
 
 ///|
