@@ -71,8 +71,8 @@ pub fn[T : Eq] new_var_value(
 ///   inspect!(var_value.parent.index, content="1")
 /// }
 /// ```
-pub fn[T : Eq] redirect(self : VarValue[T], to : VarIndex) -> Unit {
-  self.parent = to
+pub fn[T : Eq] redirect(self : VarValue[T], to : VarIndex) -> VarValue[T] {
+  new_var_value(self.value, self.rank, to)
 }
 
 ///|
@@ -95,9 +95,8 @@ pub fn[T : Eq] redirect(self : VarValue[T], to : VarIndex) -> Unit {
 ///   inspect!(var_value.rank, content="1")
 /// }
 /// ```
-pub fn[T : Eq] root(self : VarValue[T], rank : Int, value : T) -> Unit {
-  self.value = value
-  self.rank = rank
+pub fn[T : Eq] root(self : VarValue[T], rank : Int, value : T) -> VarValue[T] {
+  new_var_value(value, rank, self.parent)
 }
 
 ///|
@@ -300,7 +299,7 @@ pub fn[T : Eq] value(
   self : UnificationTable[T],
   index : VarIndex
 ) -> VarValue[T] {
-  self.get(index.index).unwrap()
+  self.value(index)
 }
 
 ///|
@@ -389,10 +388,9 @@ pub fn[T : Eq] set(
 pub fn[T : Eq] update(
   self : UnificationTable[T],
   index : VarIndex,
-  func : (VarValue[T]) -> Unit
+  func : (VarValue[T]) -> VarValue[T]
 ) -> Unit {
-  let current_value = self.get(index.index).unwrap()
-  func(current_value)
+  self.set(index, func(self.value(index)))
 }
 
 ///|
@@ -540,7 +538,7 @@ pub fn[T : Eq] unite(
 /// }
 /// ```
 pub fn[T : Eq] find(self : UnificationTable[T], index : VarIndex) -> VarIndex {
-  let value = self.get(index.index).unwrap()
+  let value = self.value(index)
   if value.parent == index {
     return index
   }
@@ -581,7 +579,7 @@ pub fn[T : Eq] find_root(
   value : VarValue[T]
 ) -> VarValue[T] {
   let root_index = self.find(value.parent)
-  return self.get(root_index.index).unwrap()
+  return self.value(root_index)
 }
 
 // Snapshot

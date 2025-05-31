@@ -290,9 +290,41 @@ pub fn[T] action_since_snapshot(
 /// ```
 pub fn[T] rollback_to(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
   let actions = self.action_since_snapshot(snapshot)
-  for _ in actions {
+  let count = actions.length()
+  for _ in 0..<count {
     self.rollback()
   }
+  
+}
+
+
+///|
+/// Records a custom undo action in the snapshot logs. This allows manual
+/// registration of undo operations that can be rolled back when reverting to a
+/// previous snapshot.
+///
+/// Parameters:
+///
+/// * `undo` : The undo action to be recorded, which will be executed during
+/// rollback operations.
+///
+/// Example:
+///
+/// ```moonbit
+/// ///|
+/// test "SnapshotArray::record" {
+///   let arr = SnapshotArray::new()
+///   let snapshot = arr.start_snapshot()
+///   arr.record(@logs.newElem(0))
+///   inspect!(arr.action_since_snapshot(snapshot).length(), content="1")
+/// }
+/// ```
+pub fn[T] record(self : SnapshotArray[T], undo : @logs.Undo[T]) -> Bool {
+  if self.in_snapshot() {
+    self.logs.push(undo)
+    return true
+  } 
+  false
 }
 
 ///|

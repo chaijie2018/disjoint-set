@@ -214,7 +214,7 @@ test "VarValue::redirect" {
   let old_parent = new_index(0)
   let new_parent = new_index(1)
   let var_value = new_var_value(42, 0, old_parent)
-  var_value.redirect(new_parent)
+  let var_value = var_value.redirect(new_parent)
   inspect!(var_value.parent.index, content="1")
 }
 
@@ -222,7 +222,7 @@ test "VarValue::redirect" {
 test "VarValue::root" {
   let index = new_index(0)
   let var_value = new_var_value(42, 0, index)
-  var_value.root(1, 100)
+  let var_value = var_value.root(1, 100)
   inspect!(var_value.value, content="100")
   inspect!(var_value.rank, content="1")
 }
@@ -233,4 +233,27 @@ test "VarValue::modify" {
   let var_value = new_var_value(42, 0, index)
   var_value.modify(100)
   inspect!(var_value.value, content="100")
+}
+
+
+test "UnificationTable::snapshot_unite_test" {
+  let table = new(capacity=5)
+  let _ = table.start_snapshot()
+  for i in 0..<5 {
+    table.push(i)
+  }
+  let s1 = table.start_snapshot()
+  let index1 = table.index(1)
+  let index2 = table.index(2)
+  let index3 = table.index(3)
+  assert_false!(table.unioned(index1, index2))
+  let _ = table.unite(index1, index2, 8)
+  assert_true!(table.unioned(index1, index2))
+  assert_false!(table.unioned(index1, index3))
+  assert_false!(table.unioned(index2, index3))
+  table.rollback_to(s1)
+  assert_false!(table.unioned(index1, index2))
+  assert_false!(table.unioned(index1, index3))
+  assert_false!(table.unioned(index2, index1))
+
 }
