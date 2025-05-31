@@ -299,7 +299,7 @@ pub fn[T : Eq] value(
   self : UnificationTable[T],
   index : VarIndex
 ) -> VarValue[T] {
-  self.value(index)
+  self.get(index.index).unwrap()
 }
 
 ///|
