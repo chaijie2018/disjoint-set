@@ -317,9 +317,7 @@ pub fn[T] rollback_to(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
   for _ in 0..<count {
     self.rollback()
   }
-  
 }
-
 
 ///|
 /// Records a custom undo action in the snapshot logs. This allows manual
@@ -346,7 +344,7 @@ pub fn[T] record(self : SnapshotArray[T], undo : @logs.Undo[T]) -> Bool {
   if self.in_snapshot() {
     self.logs.push(undo)
     return true
-  } 
+  }
   false
 }
 
@@ -384,7 +382,6 @@ pub fn[T] record(self : SnapshotArray[T], undo : @logs.Undo[T]) -> Bool {
 pub fn[T] commit(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
   self.logs.commit(snapshot.undo_count)
 }
-
 
 ///|
 /// Commits all changes permanently by clearing all undo logs, making all

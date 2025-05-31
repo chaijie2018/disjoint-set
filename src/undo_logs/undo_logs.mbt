@@ -275,6 +275,7 @@ pub fn[T] rollback_to(
   let logs = self.action_since_snapshot(snapshot).to_array()
   for _ in 0..<logs.length() {
     let _ = self.pop()
+
   }
   logs
 }
@@ -320,7 +321,6 @@ pub fn[T] last(self : UndoLogs[T]) -> Undo[T]? {
 pub fn[T] iter(self : UndoLogs[T]) -> Iter[Undo[T]] {
   self.logs.iter()
 }
-
 
 ///|
 pub impl[T : Eq] Eq for Undo[T] with op_equal(self, other : Undo[T]) -> Bool {

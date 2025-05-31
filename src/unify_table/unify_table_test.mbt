@@ -235,7 +235,7 @@ test "VarValue::modify" {
   inspect!(var_value.value, content="100")
 }
 
-
+///|
 test "UnificationTable::snapshot_unite_test" {
   let table = new(capacity=5)
   let _ = table.start_snapshot()
@@ -255,5 +255,4 @@ test "UnificationTable::snapshot_unite_test" {
   assert_false!(table.unioned(index1, index2))
   assert_false!(table.unioned(index1, index3))
   assert_false!(table.unioned(index2, index1))
-
 }

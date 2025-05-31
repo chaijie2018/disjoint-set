@@ -32,11 +32,7 @@ pub fn solve(
       if table.unioned(table.index(u), table.index(v)) {
         continue
       }
-      let _ = table.unite(
-        table.index(u),
-        table.index(v),
-        1,
-      ) // 新的值并不重要，该题目并没有考虑到值的合并
+      let _ = table.unite(table.index(u), table.index(v), 1) // 新的值并不重要，该题目并没有考虑到值的合并
       ans -= 1
       dfs(v)
     }
@@ -69,10 +65,8 @@ test (b : @bench.T) {
   for i in 0..<data.length() {
     let ((n, m, k), edges, queries) = data[i]
     let answer = answers[i]
-    b.bench(name="unify_table_benchmark",
-      fn() {
-        solve(n, m, k, edges, queries, answer)
-      }
-    )
+    b.bench(name="unify_table_benchmark", fn() {
+      solve(n, m, k, edges, queries, answer)
+    })
   }
 }
