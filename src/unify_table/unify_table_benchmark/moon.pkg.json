@@ -1,7 +1,7 @@
 {
-    "name": "bigorangeqwq/unify_table_benchmark",
+    "name": "BigOrangeQWQ/unify_table_benchmark",
     "test-import": [
-      "bigorangeqwq/unification_table/unify_table"
+      "BigOrangeQWQ/unification_table/unify_table"
     ],
     "link": {
     }

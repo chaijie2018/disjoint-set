@@ -1,10 +1,10 @@
 {
-  "name": "bigorangeqwq/unification_table",
+  "name": "BigOrangeQWQ/unification_table",
   "version": "0.1.0",
   "readme": "README.md",
-  "repository": "",
+  "repository": "https://github.com/BigOrangeQWQ/UnificationTable",
   "license": "Apache-2.0",
-  "keywords": [],
+  "keywords": ["data-structure", "algorithm", "unification", "table"],
   "description": "",
   "source": "src"
 }
