@@ -6,7 +6,7 @@ pub enum Undo[T] {
 }
 
 ///|
-typealias Snapshot = Int
+typealias Int as Snapshot
 
 ///|
 pub fn[T] newElem(index : Int) -> Undo[T] {

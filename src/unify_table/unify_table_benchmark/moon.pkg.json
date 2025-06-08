@@ -1,5 +1,5 @@
 {
-    "name": "BigOrangeQWQ/unify_table_benchmark",
+    "name": "BigOrangeQWQ/unification_table/unify_table_benchmark",
     "test-import": [
       "BigOrangeQWQ/unification_table/unify_table"
     ],
