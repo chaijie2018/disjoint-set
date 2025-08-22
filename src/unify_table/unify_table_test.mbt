@@ -98,7 +98,7 @@ test "UnificationTable::set" {
 test "UnificationTable::update" {
   let table : UnificationTable[Int] = new(capacity=5)
   table.push(42)
-  table.update(new_index(0), fn(var) { var.root(var.rank, 100) })
+  table.update(new_index(0), fn(val) { val.root(val.rank, 100) })
   inspect(
     table.get(0),
     content="Some(VarValue { value: 100, rank: 0, parent: VarIndex { index: 0 } })",

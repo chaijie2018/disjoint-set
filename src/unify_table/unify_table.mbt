@@ -35,16 +35,13 @@ pub struct VarValue[T] {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "VarValue::new_var_value" {
-///   let index = new_index(0)
-///   let var_value = new_var_value(42, 0, index)
-///   inspect!(var_value.value, content="42")
-///   inspect!(var_value.rank, content="0")
-///   inspect!(var_value.parent.index, content="0")
-/// }
+/// let index = new_index(0)
+/// let var_value = new_var_value(42, 0, index)
+/// inspect(var_value.value, content="42")
+/// inspect(var_value.rank, content="0")
+/// inspect(var_value.parent.index, content="0")
 /// ```
-pub fn[T : Eq] new_var_value(
+pub fn[T] new_var_value(
   value : T,
   rank : Int,
   parent : VarIndex,
@@ -62,16 +59,13 @@ pub fn[T : Eq] new_var_value(
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "VarValue::redirect" {
-///   let old_parent = new_index(0)
-///   let new_parent = new_index(1)
-///   let var_value = new_var_value(42, 0, old_parent)
-///   let var_value = var_value.redirect(new_parent)
-///   inspect!(var_value.parent.index, content="1")
-/// }
+/// let old_parent = new_index(0)
+/// let new_parent = new_index(1)
+/// let var_value = new_var_value(42, 0, old_parent)
+/// let var_value = var_value.redirect(new_parent)
+/// inspect(var_value.parent.index, content="1")
 /// ```
-pub fn[T : Eq] redirect(self : VarValue[T], to : VarIndex) -> VarValue[T] {
+pub fn[T] redirect(self : VarValue[T], to : VarIndex) -> VarValue[T] {
   new_var_value(self.value, self.rank, to)
 }
 
@@ -86,16 +80,13 @@ pub fn[T : Eq] redirect(self : VarValue[T], to : VarIndex) -> VarValue[T] {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "VarValue::root" {
-///   let index = new_index(0)
-///   let var_value = new_var_value(42, 0, index)
-///   let var_value = var_value.root(1, 100)
-///   inspect!(var_value.value, content="100")
-///   inspect!(var_value.rank, content="1")
-/// }
+/// let index = new_index(0)
+/// let var_value = new_var_value(42, 0, index)
+/// let var_value = var_value.root(1, 100)
+/// inspect(var_value.value, content="100")
+/// inspect(var_value.rank, content="1")
 /// ```
-pub fn[T : Eq] root(self : VarValue[T], rank : Int, value : T) -> VarValue[T] {
+pub fn[T] root(self : VarValue[T], rank : Int, value : T) -> VarValue[T] {
   new_var_value(value, rank, self.parent)
 }
 
@@ -107,14 +98,12 @@ pub fn[T : Eq] root(self : VarValue[T], rank : Int, value : T) -> VarValue[T] {
 /// 
 /// Example:
 /// ```moonbit
-/// ///|
-/// test "VarValue::modify" {
-///   let index = new_index(0)
-///   let var_value = new_var_value(42, 0, index)
-///   var_value.modify(100)
-///   inspect!(var_value.value, content="100")
-/// }
-pub fn[T : Eq] modify(self : VarValue[T], value : T) -> Unit {
+/// let index = new_index(0)
+/// let var_value = new_var_value(42, 0, index)
+/// var_value.modify(100)
+/// inspect(var_value.value, content="100")
+/// ```
+pub fn[T] modify(self : VarValue[T], value : T) -> Unit {
   self.value = value
 }
 
@@ -151,13 +140,10 @@ impl Eq for VarIndex with op_equal(self, other) {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::new" {
-///   let table : UnificationTable[Int] = new(capacity=10)
-///   inspect!(table.values.length(), content="0")
-/// }
+/// let table : UnificationTable[Int] = new(capacity=10)
+/// inspect(table.values.length(), content="0")
 /// ```
-pub fn[T : Eq] new(capacity~ : Int) -> UnificationTable[T] {
+pub fn[T] new(capacity~ : Int) -> UnificationTable[T] {
   { values: @snapshot_array.new(capacity~) }
 }
 
@@ -172,14 +158,11 @@ pub fn[T : Eq] new(capacity~ : Int) -> UnificationTable[T] {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::push" {
-///   let table = new(capacity=5)
-///   table.push(1)
-///   assert_true(table.values.length() == 1)
-/// }
+/// let table = new(capacity=5)
+/// table.push(1)
+/// assert_true(table.values.length() == 1)
 /// ```
-pub fn[T : Eq] push(self : UnificationTable[T], value : T) -> Unit {
+pub fn[T] push(self : UnificationTable[T], value : T) -> Unit {
   self.values.push({ value, rank: 0, parent: new_index(self.values.length()) })
 }
 
@@ -195,18 +178,12 @@ pub fn[T : Eq] push(self : UnificationTable[T], value : T) -> Unit {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::push_var" {
-///   let table : UnificationTable[Int] = new(capacity=5)
-///   let var_value = new_var_value(42, 0, new_index(0))
-///   table.push_var(var_value)
-///   inspect!(table.values.length(), content="1")
-/// }
+/// let table : UnificationTable[Int] = new(capacity=5)
+/// let var_value = new_var_value(42, 0, new_index(0))
+/// table.push_var(var_value)
+/// inspect(table.values.length(), content="1")
 /// ```
-pub fn[T : Eq] push_var(
-  self : UnificationTable[T],
-  value : VarValue[T],
-) -> Unit {
+pub fn[T] push_var(self : UnificationTable[T], value : VarValue[T]) -> Unit {
   self.values.push(value)
 }
 
@@ -223,18 +200,15 @@ pub fn[T : Eq] push_var(
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-///test "UnificationTable::get" {
-///  let table : UnificationTable[Int] = new(capacity=5)
-///  table.push(42)
-///  inspect!(
-///    table.get(0),
-///    content="Some(VarValue { value: 42, rank: 0, parent: VarIndex { index: 0 } })",
-///  )
-///  inspect!(table.get(1), content="None")
-///}
+/// let table : UnificationTable[Int] = new(capacity=5)
+/// table.push(42)
+/// inspect(
+///   table.get(0),
+///   content="Some(VarValue { value: 42, rank: 0, parent: VarIndex { index: 0 } })",
+/// )
+/// inspect(table.get(1), content="None")
 /// ```
-pub fn[T : Eq] get(self : UnificationTable[T], index : Int) -> VarValue[T]? {
+pub fn[T] get(self : UnificationTable[T], index : Int) -> VarValue[T]? {
   self.values.get(index)
 }
 
@@ -253,20 +227,11 @@ pub fn[T : Eq] get(self : UnificationTable[T], index : Int) -> VarValue[T]? {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::index" {
-///   let table : UnificationTable[Int] = new(capacity=5)
-///   table.push(42)
-///   inspect!(table.index(0).index, content="0")
-/// }
-/// 
-/// ///|
-/// test "panic UnificationTable::index/out_of_bounds" {
-///   let table : UnificationTable[Int] = new(capacity=5)
-///   let _ = table.index(-1)
-/// }
+/// let table : UnificationTable[Int] = new(capacity=5)
+/// table.push(42)
+/// inspect(table.index(0).index, content="0")
 /// ```
-pub fn[T : Eq] index(self : UnificationTable[T], index : Int) -> VarIndex {
+pub fn[T] index(self : UnificationTable[T], index : Int) -> VarIndex {
   if index < 0 || index >= self.values.length() {
     abort("Index out of bounds")
   }
@@ -284,21 +249,15 @@ pub fn[T : Eq] index(self : UnificationTable[T], index : Int) -> VarIndex {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::value" {
-///   let table : UnificationTable[Int] = new(capacity=5)
-///   table.push(42)
-///   let index = new_index(0)
-///   inspect!(
-///     table.value(index),
-///     content="VarValue { value: 42, rank: 0, parent: VarIndex { index: 0 } }",
-///   )
-/// }
+/// let table : UnificationTable[Int] = new(capacity=5)
+/// table.push(42)
+/// let index = new_index(0)
+/// inspect(
+///   table.value(index),
+///   content="VarValue { value: 42, rank: 0, parent: VarIndex { index: 0 } }",
+/// )
 /// ```
-pub fn[T : Eq] value(
-  self : UnificationTable[T],
-  index : VarIndex,
-) -> VarValue[T] {
+pub fn[T] value(self : UnificationTable[T], index : VarIndex) -> VarValue[T] {
   self.get(index.index).unwrap()
 }
 
@@ -310,20 +269,17 @@ pub fn[T : Eq] value(
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::reset" {
-///   let table : UnificationTable[Int] = new(capacity=2)
-///   table.push(1)
-///   table.push(2)
-///   let _ = table.unite(new_index(0), new_index(1), 42)
-///   table.reset()
-///   inspect!(
-///     table.unioned(new_index(0), new_index(1)),
-///     content="false",
-///   )
-/// }
+/// let table : UnificationTable[Int] = new(capacity=2)
+/// table.push(1)
+/// table.push(2)
+/// let _ = table.unite(new_index(0), new_index(1), 42)
+/// table.reset()
+/// inspect(
+///   table.unioned(new_index(0), new_index(1)),
+///   content="false",
+/// )
 /// ```
-pub fn[T : Eq] reset(self : UnificationTable[T]) -> Unit {
+pub fn[T] reset(self : UnificationTable[T]) -> Unit {
   for index, value in self.values.values {
     value.rank = 0
     value.parent = new_index(index)
@@ -343,19 +299,16 @@ pub fn[T : Eq] reset(self : UnificationTable[T]) -> Unit {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::set" {
-///   let table : UnificationTable[Int] = new(capacity=5)
-///   table.push(42)
-///   let new_value = new_var_value(100, 0, new_index(0))
-///   table.set(new_index(0), new_value)
-///   inspect!(
-///     table.get(0),
-///     content="Some(VarValue { value: 100, rank: 0, parent: VarIndex { index: 0 } })",
-///   )
-/// }
+/// let table : UnificationTable[Int] = new(capacity=5)
+/// table.push(42)
+/// let new_value = new_var_value(100, 0, new_index(0))
+/// table.set(new_index(0), new_value)
+/// inspect(
+///   table.get(0),
+///   content="Some(VarValue { value: 100, rank: 0, parent: VarIndex { index: 0 } })",
+/// )
 /// ```
-pub fn[T : Eq] set(
+pub fn[T] set(
   self : UnificationTable[T],
   index : VarIndex,
   value : VarValue[T],
@@ -375,18 +328,15 @@ pub fn[T : Eq] set(
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::update" {
-///   let table : UnificationTable[Int] = new(capacity=5)
-///   table.push(42)
-///   table.update(new_index(0), fn(var) { var.modify(100); var })
-///   inspect!(
-///     table.get(0),
-///     content="Some(VarValue { value: 100, rank: 0, parent: VarIndex { index: 0 } })",
-///   )
-/// }
+/// let table : UnificationTable[Int] = new(capacity=5)
+/// table.push(42)
+/// table.update(new_index(0), fn(val) { val.modify(100); val })
+/// inspect(
+///   table.get(0),
+///   content="Some(VarValue { value: 100, rank: 0, parent: VarIndex { index: 0 } })",
+/// )
 /// ```
-pub fn[T : Eq] update(
+pub fn[T] update(
   self : UnificationTable[T],
   index : VarIndex,
   func : (VarValue[T]) -> VarValue[T],
@@ -409,16 +359,13 @@ pub fn[T : Eq] update(
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::redirect_root" {
-///   let table : UnificationTable[Int] = new(capacity=2)
-///   table.push(1)
-///   table.push(2)
-///   table.redirect_root(1, new_index(0), new_index(1), 42)
-///   inspect!(table.find(new_index(0)).index, content="1")
-/// }
+/// let table : UnificationTable[Int] = new(capacity=2)
+/// table.push(1)
+/// table.push(2)
+/// table.redirect_root(1, new_index(0), new_index(1), 42)
+/// inspect(table.find(new_index(0)).index, content="1")
 /// ```
-pub fn[T : Eq] redirect_root(
+pub fn[T] redirect_root(
   self : UnificationTable[T],
   new_rank : Int,
   old_index : VarIndex,
@@ -443,19 +390,16 @@ pub fn[T : Eq] redirect_root(
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::unioned" {
-///   let table : UnificationTable[Int] = new(capacity=2)
-///   table.push(1)
-///   table.push(2)
-///   let _ = table.unite(table.index(0),table.index(1), 42)
-///   inspect!(
-///     table.unioned(new_index(0), new_index(1)),
-///     content="true",
-///   )
-/// }
+/// let table : UnificationTable[Int] = new(capacity=2)
+/// table.push(1)
+/// table.push(2)
+/// let _ = table.unite(table.index(0),table.index(1), 42)
+/// inspect(
+///   table.unioned(new_index(0), new_index(1)),
+///   content="true",
+/// )
 /// ```
-pub fn[T : Eq] unioned(
+pub fn[T] unioned(
   self : UnificationTable[T],
   index1 : VarIndex,
   index2 : VarIndex,
@@ -479,16 +423,13 @@ pub fn[T : Eq] unioned(
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::unite" {
-///   let table : UnificationTable[Int] = new(capacity=2)
-///   table.push(1)
-///   table.push(2)
-///   let root = table.unite(table.index(0),table.index(1), 42)
-///   inspect!(table.value(root).value, content="42")
-/// }
+/// let table : UnificationTable[Int] = new(capacity=2)
+/// table.push(1)
+/// table.push(2)
+/// let root = table.unite(table.index(0),table.index(1), 42)
+/// inspect(table.value(root).value, content="42")
 /// ```
-pub fn[T : Eq] unite(
+pub fn[T] unite(
   self : UnificationTable[T],
   index1 : VarIndex,
   index2 : VarIndex,
@@ -527,18 +468,15 @@ pub fn[T : Eq] unite(
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::find" {
-///   let table : UnificationTable[Int] = new(capacity=3)
-///   table.push(1)
-///   table.push(2)
-///   table.push(3)
-///   let _ = table.unite(table.index(0),table.index(1), 42)
-///   let root = table.find(table.index(0))
-///   inspect!(root.index, content="0")
-/// }
+/// let table : UnificationTable[Int] = new(capacity=3)
+/// table.push(1)
+/// table.push(2)
+/// table.push(3)
+/// let _ = table.unite(table.index(0),table.index(1), 42)
+/// let root = table.find(table.index(0))
+/// inspect(root.index, content="0")
 /// ```
-pub fn[T : Eq] find(self : UnificationTable[T], index : VarIndex) -> VarIndex {
+pub fn[T] find(self : UnificationTable[T], index : VarIndex) -> VarIndex {
   let value = self.value(index)
   if value.parent == index {
     return index
@@ -564,18 +502,15 @@ pub fn[T : Eq] find(self : UnificationTable[T], index : VarIndex) -> VarIndex {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::find_root" {
-///   let table : UnificationTable[Int] = new(capacity=2)
-///   table.push(1)
-///   table.push(2)
-///   let _ = table.unite(table.index(0), table.index(1), 42)
-///   let value = table.get(0).unwrap()
-///   let root = table.find_root(value)
-///   inspect!(root.value, content="42")
-/// }
+/// let table : UnificationTable[Int] = new(capacity=2)
+/// table.push(1)
+/// table.push(2)
+/// let _ = table.unite(table.index(0), table.index(1), 42)
+/// let value = table.get(0).unwrap()
+/// let root = table.find_root(value)
+/// inspect(root.value, content="42")
 /// ```
-pub fn[T : Eq] find_root(
+pub fn[T] find_root(
   self : UnificationTable[T],
   value : VarValue[T],
 ) -> VarValue[T] {
@@ -591,12 +526,9 @@ pub fn[T : Eq] find_root(
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::in_snapshot" {
-///   let table : UnificationTable[Int] = new(capacity=5)
-///   let _ = table.start_snapshot()
-///   assert_true(table.in_snapshot())
-/// }
+/// let table : UnificationTable[Int] = new(capacity=5)
+/// let _ = table.start_snapshot()
+/// assert_true(table.in_snapshot())
 /// ```
 pub fn[T] in_snapshot(self : UnificationTable[T]) -> Bool {
   self.values.in_snapshot()
@@ -610,15 +542,12 @@ pub fn[T] in_snapshot(self : UnificationTable[T]) -> Bool {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::start_snapshot" {
-///   let table : UnificationTable[Int] = new(capacity=5)
-///   table.push(42)
-///   let snapshot = table.start_snapshot()
-///   table.push(100)
-///   table.rollback_to(snapshot)
-///   inspect!(table.values.length(), content="1")
-/// }
+/// let table : UnificationTable[Int] = new(capacity=5)
+/// table.push(42)
+/// let snapshot = table.start_snapshot()
+/// table.push(100)
+/// table.rollback_to(snapshot)
+/// inspect(table.values.length(), content="1")
 /// ```
 pub fn[T] start_snapshot(self : UnificationTable[T]) -> Snapshot {
   let snapshot = self.values.start_snapshot()
@@ -637,14 +566,12 @@ pub fn[T] start_snapshot(self : UnificationTable[T]) -> Snapshot {
 /// Example:
 ///
 /// ```moonbit
-/// test "UnificationTable::start_snapshot" {
-///   let table : UnificationTable[Int] = new(capacity=5)
-///   table.push(42)
-///   let snapshot = table.start_snapshot()
-///   table.push(100)
-///   table.rollback_to(snapshot)
-///   inspect!(table.values.length(), content="1")
-/// }
+/// let table : UnificationTable[Int] = new(capacity=5)
+/// table.push(42)
+/// let snapshot = table.start_snapshot()
+/// table.push(100)
+/// table.rollback_to(snapshot)
+/// inspect(table.values.length(), content="1")
 /// ```
 pub fn[T] rollback_to(self : UnificationTable[T], snapshot : Snapshot) -> Unit {
   self.values.rollback_to(snapshot.snapshot)
@@ -661,27 +588,24 @@ pub fn[T] rollback_to(self : UnificationTable[T], snapshot : Snapshot) -> Unit {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "UnificationTable::commit" {
-///   let table : UnificationTable[Int] = new(capacity=5)
-///   table.push(42)
-///   let snapshot = table.start_snapshot()
-///   table.push(100)
-///   table.commit(snapshot)
-///   inspect!(table.values.length(), content="2")
-/// }
+/// let table : UnificationTable[Int] = new(capacity=5)
+/// table.push(42)
+/// let snapshot = table.start_snapshot()
+/// table.push(100)
+/// table.commit(snapshot)
+/// inspect(table.values.length(), content="2")
 /// ```
 pub fn[T] commit(self : UnificationTable[T], snapshot : Snapshot) -> Unit {
   self.values.commit(snapshot.snapshot)
 }
 
 ///|
-pub fn[T : Eq] op_get(self : UnificationTable[T], index : Int) -> VarValue[T] {
+pub fn[T] op_get(self : UnificationTable[T], index : Int) -> VarValue[T] {
   return self.get(index).unwrap()
 }
 
 ///|
-pub fn[T : Eq] op_set(
+pub fn[T] op_set(
   self : UnificationTable[T],
   index : Int,
   value : VarValue[T],
