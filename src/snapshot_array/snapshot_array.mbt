@@ -14,17 +14,15 @@ pub struct Snapshot {
 /// 
 /// Example:
 /// ```moonbit
-/// test "SnapshotArray::new" {
-///   let arr = new(capacity=5)
-///   assert_true!(arr.length() == 0)
-/// }
+/// let arr : SnapshotArray[Int] = new(capacity=5)
+/// assert_true(arr.length() == 0)
 /// ```
-pub fn[T] new(capacity~ : Int = 0) -> SnapshotArray[T] {
+pub fn[T] new(capacity? : Int = 0) -> SnapshotArray[T] {
   { logs: @logs.new(), values: Array::new(capacity~) }
 }
 
 ///|
-pub fn[T] from_iter(iter : Iter[T], capacity~ : Int = 0) -> SnapshotArray[T] {
+pub fn[T] from_iter(iter : Iter[T], capacity? : Int = 0) -> SnapshotArray[T] {
   let arr = new(capacity~)
   arr.extend(iter)
   arr
@@ -42,12 +40,10 @@ pub fn[T] of(values : FixedArray[T]) -> SnapshotArray[T] {
 /// 
 /// Example:
 /// ```moonbit
-/// test "SnapshotArray::length" {
-///   let arr = new(capacity=5)
-///   assert_eq!(arr.length(), 0)
-///   arr.push(1)
-///   assert_eq!(arr.length(), 1)
-/// }
+/// let arr = new(capacity=5)
+/// assert_eq(arr.length(), 0)
+/// arr.push(1)
+/// assert_eq(arr.length(), 1)
 /// ```
 pub fn[T] length(self : SnapshotArray[T]) -> Int {
   self.values.length()
@@ -58,13 +54,11 @@ pub fn[T] length(self : SnapshotArray[T]) -> Int {
 /// 
 /// Example:
 /// ```moonbit
-/// test "SnapshotArray::get" {
-///   let arr = new(capacity=5)
-///   arr.push(1)
-///   arr.push(2)
-///   assert_eq!(arr.get(0).unwrap(), 1)
-///   assert_eq!(arr.get(1).unwrap(), 2)
-/// }
+/// let arr = new(capacity=5)
+/// arr.push(1)
+/// arr.push(2)
+/// assert_eq(arr.get(0).unwrap(), 1)
+/// assert_eq(arr.get(1).unwrap(), 2)
 /// ```
 pub fn[T] get(self : SnapshotArray[T], index : Int) -> T? {
   self.values.get(index)
@@ -75,16 +69,12 @@ pub fn[T] get(self : SnapshotArray[T], index : Int) -> T? {
 ///
 /// Example:
 /// ```moonbit
-/// ///|
-/// test "SnapshotArray::rollback" {
-///   let arr = SnapshotArray::new()
-///   let snapshot = arr.start_snapshot()
-///   arr.push(1)
-///   arr.push(2)
-///   arr.rollback()
-///   inspect!(arr.length(), content="1")
-///   inspect!(arr.get(0).unwrap(), content="1")
-/// }
+/// let arr = new()
+/// let snapshot = arr.start_snapshot()
+/// arr.push(1)
+/// arr.push(2)
+/// arr.rollback_to(snapshot)
+/// inspect(arr.length(), content="0")
 /// ```
 fn[T] rollback(self : SnapshotArray[T]) -> Unit {
   let undo = self.logs.pop().unwrap()
@@ -106,13 +96,10 @@ fn[T] rollback(self : SnapshotArray[T]) -> Unit {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "SnapshotArray::in_snapshot" {
-///   let arr = SnapshotArray::new()
-///   inspect!(arr.in_snapshot(), content="false")
-///   let _ = arr.start_snapshot()
-///   inspect!(arr.in_snapshot(), content="true")
-/// }
+/// let arr : SnapshotArray[Int] = new()
+/// inspect(arr.in_snapshot(), content="false")
+/// let _ = arr.start_snapshot()
+/// inspect(arr.in_snapshot(), content="true")
 /// ```
 pub fn[T] in_snapshot(self : SnapshotArray[T]) -> Bool {
   self.logs.in_snapshot()
@@ -125,15 +112,13 @@ pub fn[T] in_snapshot(self : SnapshotArray[T]) -> Bool {
 /// Example:
 ///
 /// ```moonbit
-/// test "SnapshotArray::push" {
-///   let arr = SnapshotArray::new()
-///   let snapshot = arr.start_snapshot()
-///   arr.push(1)
-///   inspect!(arr.length(), content="1")
-///   inspect!(arr.get(0).unwrap(), content="1")
-///   arr.rollback_to(snapshot)
-///   inspect!(arr.length(), content="0")
-/// }
+/// let arr = new()
+/// let snapshot = arr.start_snapshot()
+/// arr.push(1)
+/// inspect(arr.length(), content="1")
+/// inspect(arr.get(0).unwrap(), content="1")
+/// arr.rollback_to(snapshot)
+/// inspect(arr.length(), content="0")
 /// ```
 pub fn[T] push(self : SnapshotArray[T], elem : T) -> Unit {
   let len = self.values.length()
@@ -151,15 +136,12 @@ pub fn[T] push(self : SnapshotArray[T], elem : T) -> Unit {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "SnapshotArray::reset" {
-///   let arr : SnapshotArray[Int] = SnapshotArray::new()
-///   arr.push(1)
-///   arr.push(2)
-///   inspect!(arr.length(), content="2")
-///   arr.reset()
-///   inspect!(arr.length(), content="0")
-/// }
+/// let arr : SnapshotArray[Int] = new()
+/// arr.push(1)
+/// arr.push(2)
+/// inspect(arr.length(), content="2")
+/// arr.reset()
+/// inspect(arr.length(), content="0")
 /// ```
 pub fn[T] reset(self : SnapshotArray[T]) -> Unit {
   self.values.clear()
@@ -172,12 +154,10 @@ pub fn[T] reset(self : SnapshotArray[T]) -> Unit {
 /// Example:
 ///
 /// ```moonbit
-/// test "SnapshotArray::extend" {
-///   let arr = SnapshotArray::new()
-///   arr.extend(Iter::of([1, 2, 3]))
-///   inspect!(arr.length(), content="3")
-///   inspect!(arr.get(0).unwrap(), content="1")
-/// }
+/// let arr = new()
+/// arr.extend([1, 2, 3].iter())
+/// inspect(arr.length(), content="3")
+/// inspect(arr.get(0).unwrap(), content="1")
 /// ```
 pub fn[T] extend(self : SnapshotArray[T], iter : Iter[T]) -> Unit {
   iter.each(fn(elem) { self.push(elem) })
@@ -192,16 +172,13 @@ pub fn[T] extend(self : SnapshotArray[T], iter : Iter[T]) -> Unit {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "SnapshotArray::set" {
-///   let arr = SnapshotArray::new()
-///   arr.push(1)
-///   let snapshot = arr.start_snapshot()
-///   arr.set(0, 42)
-///   inspect!(arr.get(0).unwrap(), content="42")
-///   arr.rollback_to(snapshot)
-///   inspect!(arr.get(0).unwrap(), content="1")
-/// }
+/// let arr = new()
+/// arr.push(1)
+/// let snapshot = arr.start_snapshot()
+/// arr.set(0, 42)
+/// inspect(arr.get(0).unwrap(), content="42")
+/// arr.rollback_to(snapshot)
+/// inspect(arr.get(0).unwrap(), content="1")
 /// ```
 pub fn[T] set(self : SnapshotArray[T], index : Int, value : T) -> Unit {
   if index >= self.values.length() {
@@ -221,15 +198,13 @@ pub fn[T] set(self : SnapshotArray[T], index : Int, value : T) -> Unit {
 ///
 /// Example:
 /// ```moonbit
-/// test "SnapshotArray::set_all" {
-///   let arr = SnapshotArray::new()
-///   arr.extend(Iter::of([1, 2, 3]))
-///   let snapshot = arr.start_snapshot()
-///   arr.set_all(fn(x) { x * 2 })
-///   inspect!(arr.get(0).unwrap(), content="2")
-///   arr.rollback_to(snapshot)
-///   inspect!(arr.get(0).unwrap(), content="1")
-/// }
+/// let arr = new()
+/// arr.extend([1, 2, 3].iter())
+/// let snapshot = arr.start_snapshot()
+/// arr.set_all(fn(x) { x * 2 })
+/// inspect(arr.get(0).unwrap(), content="2")
+/// arr.rollback_to(snapshot)
+/// inspect(arr.get(0).unwrap(), content="1")
 /// ```
 pub fn[T] set_all(self : SnapshotArray[T], func : (T) -> T) -> Unit {
   if self.in_snapshot() {
@@ -246,6 +221,7 @@ pub fn[T] set_all(self : SnapshotArray[T], func : (T) -> T) -> Unit {
 }
 
 // Snapshot
+
 ///|
 /// Creates a new snapshot of the current state of the array. The snapshot can be
 /// used later to rollback changes or commit them.
@@ -253,15 +229,12 @@ pub fn[T] set_all(self : SnapshotArray[T], func : (T) -> T) -> Unit {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "SnapshotArray::start_snapshot" {
-///   let arr = SnapshotArray::new()
-///   arr.push(1)
-///   let snapshot = arr.start_snapshot()
-///   arr.push(2)
-///   arr.rollback_to(snapshot)
-///   inspect!(arr.length(), content="1")
-/// }
+/// let arr = new()
+/// arr.push(1)
+/// let snapshot = arr.start_snapshot()
+/// arr.push(2)
+/// arr.rollback_to(snapshot)
+/// inspect(arr.length(), content="1")
 /// ```
 pub fn[T] start_snapshot(self : SnapshotArray[T]) -> Snapshot {
   { undo_count: self.logs.start_snapshot() }
@@ -274,18 +247,15 @@ pub fn[T] start_snapshot(self : SnapshotArray[T]) -> Snapshot {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "SnapshotArray::action_since_snapshot" {
-///   let arr = SnapshotArray::new()
-///   let snapshot = arr.start_snapshot()
-///   arr.push(1)
-///   arr.push(2)
-///   inspect!(arr.action_since_snapshot(snapshot).length(), content="2")
-/// }
+/// let arr = new()
+/// let snapshot = arr.start_snapshot()
+/// arr.push(1)
+/// arr.push(2)
+/// inspect(arr.action_since_snapshot(snapshot).length(), content="2")
 /// ```
 pub fn[T] action_since_snapshot(
   self : SnapshotArray[T],
-  snapshot : Snapshot
+  snapshot : Snapshot,
 ) -> ArrayView[@logs.Undo[T]] {
   self.logs.action_since_snapshot(snapshot.undo_count)
 }
@@ -299,17 +269,14 @@ pub fn[T] action_since_snapshot(
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "SnapshotArray::rollback_to" {
-///   let arr = SnapshotArray::new()
-///   arr.push(1)
-///   let snapshot = arr.start_snapshot()
-///   arr.push(2)
-///   arr.push(3)
-///   arr.rollback_to(snapshot)
-///   inspect!(arr.length(), content="1")
-///   inspect!(arr.get(0).unwrap(), content="1")
-/// }
+/// let arr = new()
+/// arr.push(1)
+/// let snapshot = arr.start_snapshot()
+/// arr.push(2)
+/// arr.push(3)
+/// arr.rollback_to(snapshot)
+/// inspect(arr.length(), content="1")
+/// inspect(arr.get(0).unwrap(), content="1")
 /// ```
 pub fn[T] rollback_to(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
   let actions = self.action_since_snapshot(snapshot)
@@ -332,13 +299,10 @@ pub fn[T] rollback_to(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "SnapshotArray::record" {
-///   let arr = SnapshotArray::new()
-///   let snapshot = arr.start_snapshot()
-///   arr.record(@logs.newElem(0))
-///   inspect!(arr.action_since_snapshot(snapshot).length(), content="1")
-/// }
+/// let arr : SnapshotArray[Int] = new()
+/// let snapshot = arr.start_snapshot()
+/// let _ = arr.record(@logs.newElem(0))
+/// inspect(arr.action_since_snapshot(snapshot).length(), content="1")
 /// ```
 pub fn[T] record(self : SnapshotArray[T], undo : @logs.Undo[T]) -> Bool {
   if self.in_snapshot() {
@@ -365,19 +329,16 @@ pub fn[T] record(self : SnapshotArray[T], undo : @logs.Undo[T]) -> Bool {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "SnapshotArray::commit" {
-///   let arr = SnapshotArray::new()
-///   let snapshot1 = arr.start_snapshot()
-///   arr.push(1)
-///   let snapshot2 = arr.start_snapshot()
-///   arr.push(2)
-///   arr.commit(snapshot2)
-///   inspect!(arr.length(), content="2")
-///   // Changes after snapshot2 are committed, but can still rollback to snapshot1
-///   arr.rollback_to(snapshot1)
-///   inspect!(arr.length(), content="0")
-/// }
+/// let arr = new()
+/// let snapshot1 = arr.start_snapshot()
+/// arr.push(1)
+/// let snapshot2 = arr.start_snapshot()
+/// arr.push(2)
+/// arr.commit(snapshot2)
+/// inspect(arr.length(), content="2")
+/// // Changes after snapshot2 are committed, but can still rollback to snapshot1
+/// arr.rollback_to(snapshot1)
+/// inspect(arr.length(), content="0")
 /// ```
 pub fn[T] commit(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
   self.logs.commit(snapshot.undo_count)
@@ -395,39 +356,17 @@ pub fn[T] commit(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
 /// Example:
 ///
 /// ```moonbit
-/// ///|
-/// test "SnapshotArray::commit_all" {
-///   let arr = SnapshotArray::new()
-///   let snapshot = arr.start_snapshot()
-///   arr.push(1)
-///   arr.push(2)
-///   inspect!(arr.in_snapshot(), content="true")
-///   arr.commit_all()
-///   inspect!(arr.in_snapshot(), content="false")
-///   inspect!(arr.length(), content="2")
-/// }
+/// let arr = new()
+/// let _snapshot = arr.start_snapshot()
+/// arr.push(1)
+/// arr.push(2)
+/// inspect(arr.in_snapshot(), content="true")
+/// arr.commit_all()
+/// inspect(arr.in_snapshot(), content="false")
+/// inspect(arr.length(), content="2")
 /// ```
 pub fn[T] commit_all(self : SnapshotArray[T]) -> Unit {
   self.logs.clear()
-}
-
-///|
-impl[T : Show] Show for SnapshotArray[T] with output(self, logger : &Logger) {
-  logger.write_iter(
-    self.values.iter(),
-    prefix="SnapshotArray[ ",
-    suffix=" ]",
-    sep=", ",
-  )
-}
-
-///|
-impl Show for Snapshot with output(self, logger : &Logger) {
-  logger
-  ..write_string("Snapshot { value_count: ")
-  ..write_string("undo_count: ")
-  ..write_object(self.undo_count)
-  ..write_string(" }")
 }
 
 ///|
