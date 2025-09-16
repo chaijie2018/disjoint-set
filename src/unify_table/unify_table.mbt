@@ -120,12 +120,12 @@ pub fn new_snapshot(snapshot : @snapshot_array.Snapshot) -> Snapshot {
 }
 
 ///|
-pub impl[T : Eq] Eq for VarValue[T] with op_equal(self, other) {
+pub impl[T : Eq] Eq for VarValue[T] with equal(self, other) {
   return self.value == other.value && self.parent == other.parent
 }
 
 ///|
-impl Eq for VarIndex with op_equal(self, other) {
+impl Eq for VarIndex with equal(self, other) {
   return self.index == other.index
 }
 
