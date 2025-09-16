@@ -6,11 +6,6 @@ import(
 )
 
 // Values
-fn[T] from_iter(Iter[T], capacity? : Int) -> SnapshotArray[T]
-
-fn[T] new(capacity? : Int) -> SnapshotArray[T]
-
-fn[T] of(FixedArray[T]) -> SnapshotArray[T]
 
 // Errors
 
@@ -27,14 +22,18 @@ fn[T] SnapshotArray::action_since_snapshot(Self[T], Snapshot) -> ArrayView[@undo
 fn[T] SnapshotArray::commit(Self[T], Snapshot) -> Unit
 fn[T] SnapshotArray::commit_all(Self[T]) -> Unit
 fn[T] SnapshotArray::extend(Self[T], Iter[T]) -> Unit
+fn[T] SnapshotArray::from_iter(Iter[T], capacity? : Int) -> Self[T]
 fn[T] SnapshotArray::get(Self[T], Int) -> T?
 fn[T] SnapshotArray::in_snapshot(Self[T]) -> Bool
 fn[T] SnapshotArray::length(Self[T]) -> Int
+fn[T] SnapshotArray::new(capacity? : Int) -> Self[T]
+fn[T] SnapshotArray::of(FixedArray[T]) -> Self[T]
 fn[T] SnapshotArray::op_get(Self[T], Int) -> T
 fn[T] SnapshotArray::op_set(Self[T], Int, T) -> Unit
 fn[T] SnapshotArray::push(Self[T], T) -> Unit
 fn[T] SnapshotArray::record(Self[T], @undo_logs.Undo[T]) -> Bool
 fn[T] SnapshotArray::reset(Self[T]) -> Unit
+fn[T] SnapshotArray::rollback(Self[T]) -> Unit
 fn[T] SnapshotArray::rollback_to(Self[T], Snapshot) -> Unit
 fn[T] SnapshotArray::set(Self[T], Int, T) -> Unit
 fn[T] SnapshotArray::set_all(Self[T], (T) -> T) -> Unit

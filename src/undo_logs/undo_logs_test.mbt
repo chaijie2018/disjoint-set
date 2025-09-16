@@ -1,13 +1,13 @@
 ///|
 test "UndoLogs::new" {
-  let logs = new()
+  let logs = UndoLogs::new()
   logs.push(newElem(0))
   logs.push(setElem(1, "test"))
 }
 
 ///|
 test "UndoLogs::in_snapshot" {
-  let logs = new()
+  let logs = UndoLogs::new()
   logs.push(newElem(0))
   logs.push(setElem(1, "test"))
   assert_false(logs.in_snapshot())
@@ -17,7 +17,7 @@ test "UndoLogs::in_snapshot" {
 
 ///|
 test "UndoLogs::length" {
-  let logs = new()
+  let logs = UndoLogs::new()
   logs.push(newElem(0))
   logs.push(setElem(1, "test"))
   assert_eq(logs.length(), 2)
@@ -25,7 +25,7 @@ test "UndoLogs::length" {
 
 ///|
 test "UndoLogs::num_open_snapshots" {
-  let logs = new()
+  let logs = UndoLogs::new()
   let _ = logs.start_snapshot()
   assert_true(logs.num_open_snapshots() == 1)
   logs.push(newElem(0))
@@ -36,7 +36,7 @@ test "UndoLogs::num_open_snapshots" {
 
 ///|
 test "UndoLogs::push" {
-  let logs = new()
+  let logs = UndoLogs::new()
   logs.push(newElem(0))
   logs.push(setElem(1, "test"))
   assert_eq(logs.length(), 2)
@@ -44,7 +44,7 @@ test "UndoLogs::push" {
 
 ///|
 test "UndoLogs::clear" {
-  let logs = new()
+  let logs = UndoLogs::new()
   let _ = logs.start_snapshot()
   logs.push(newElem(0))
   let _ = logs.start_snapshot()
@@ -56,7 +56,7 @@ test "UndoLogs::clear" {
 
 ///|
 test "UndoLogs::extend" {
-  let logs = new()
+  let logs = UndoLogs::new()
   let new_logs = [newElem(0), setElem(1, "test")]
   logs.extend(new_logs.iter())
   assert_true(logs.logs.length() == 2)
@@ -66,7 +66,7 @@ test "UndoLogs::extend" {
 
 ///|
 test "UndoLogs::num_open_snapshots" {
-  let logs = new()
+  let logs = UndoLogs::new()
   let s1 = logs.start_snapshot()
   assert_true(logs.num_open_snapshots() == 1)
   logs.push(newElem(0))
@@ -78,7 +78,7 @@ test "UndoLogs::num_open_snapshots" {
 
 ///|
 test "UndoLogs::action_since_snapshot" {
-  let logs = new()
+  let logs = UndoLogs::new()
   let s1 = logs.start_snapshot()
   logs.push(newElem(0))
   logs.push(setElem(1, "test"))
@@ -90,7 +90,7 @@ test "UndoLogs::action_since_snapshot" {
 
 ///|
 test "UndoLogs::has_changes" {
-  let logs = new()
+  let logs = UndoLogs::new()
   let s1 = logs.start_snapshot()
   assert_false(logs.has_changes(s1))
   logs.push(setElem(2, "another_test"))
@@ -99,7 +99,7 @@ test "UndoLogs::has_changes" {
 
 ///|
 test "UndoLogs::start_snapshot" {
-  let logs = new()
+  let logs = UndoLogs::new()
   let s1 = logs.start_snapshot()
   logs.push(newElem(0))
   logs.push(setElem(1, "test"))
@@ -111,7 +111,7 @@ test "UndoLogs::start_snapshot" {
 
 ///|
 test "UndoLogs::rollback_to" {
-  let logs = new()
+  let logs = UndoLogs::new()
   let _ = logs.start_snapshot()
   logs.push(newElem(0))
   logs.push(setElem(1, "test"))
@@ -128,7 +128,7 @@ test "UndoLogs::rollback_to" {
 
 ///|
 test "UndoLogs::pop" {
-  let logs = new()
+  let logs = UndoLogs::new()
   logs.push(newElem(0))
   logs.push(setElem(1, "test"))
   let popped = logs.pop().unwrap()
@@ -138,7 +138,7 @@ test "UndoLogs::pop" {
 
 ///|
 test "UndoLogs::last" {
-  let logs = new()
+  let logs = UndoLogs::new()
   logs.push(newElem(0))
   logs.push(setElem(1, "test"))
   let last = logs.last().unwrap()
@@ -147,7 +147,7 @@ test "UndoLogs::last" {
 
 ///|
 test "UndoLogs::commit" {
-  let logs = new()
+  let logs = UndoLogs::new()
   let s1 = logs.start_snapshot()
   logs.push(newElem(0))
   logs.push(setElem(1, "test"))

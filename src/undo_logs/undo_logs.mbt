@@ -26,13 +26,13 @@ pub struct UndoLogs[T] {
 }
 
 ///|
-pub fn[T] new(capacity? : Int = 0) -> UndoLogs[T] {
+pub fn[T] UndoLogs::new(capacity? : Int = 0) -> UndoLogs[T] {
   { logs: Array::new(capacity~), num_open_snapshots: 0 }
 }
 
 ///|
 pub fn[T] from_iter(iter : Iter[Undo[T]], capacity? : Int = 0) -> UndoLogs[T] {
-  let logs = new(capacity~)
+  let logs = UndoLogs::new(capacity~)
   logs.extend(iter)
   logs
 }
@@ -44,7 +44,7 @@ pub fn[T] from_iter(iter : Iter[Undo[T]], capacity? : Int = 0) -> UndoLogs[T] {
 /// Example:
 /// 
 /// ```moonbit
-/// let logs = new()
+/// let logs = UndoLogs::new()
 /// logs.push(newElem(0))
 /// logs.push(setElem(1, "test"))
 /// assert_false(logs.in_snapshot())
@@ -61,7 +61,7 @@ pub fn[T] in_snapshot(self : UndoLogs[T]) -> Bool {
 /// Example:
 /// 
 /// ```moonbit
-/// let logs = new()
+/// let logs = UndoLogs::new()
 /// logs.push(newElem(0))
 /// logs.push(setElem(1, "test"))
 /// assert_eq(logs.length(), 2)
@@ -76,7 +76,7 @@ pub fn[T] length(self : UndoLogs[T]) -> Int {
 /// Example:
 /// 
 /// ```moonbit
-/// let logs = new()
+/// let logs = UndoLogs::new()
 /// let _ = logs.start_snapshot()
 /// assert_true(logs.num_open_snapshots() == 1)
 /// logs.push(newElem(0))
@@ -94,7 +94,7 @@ pub fn[T] num_open_snapshots(self : UndoLogs[T]) -> Int {
 /// Example:
 /// 
 /// ```moonbit
-/// let logs = new()
+/// let logs = UndoLogs::new()
 /// logs.push(newElem(0))
 /// logs.push(setElem(1, "test"))
 /// assert_eq(logs.length(), 2)
@@ -109,7 +109,7 @@ pub fn[T] push(self : UndoLogs[T], log : Undo[T]) -> Unit {
 /// Example:
 /// 
 /// ```moonbit
-/// let logs = new()
+/// let logs = UndoLogs::new()
 /// let _ = logs.start_snapshot()
 /// logs.push(newElem(0))
 /// let _ = logs.start_snapshot()
@@ -129,7 +129,7 @@ pub fn[T] clear(self : UndoLogs[T]) -> Unit {
 /// Example:
 /// 
 /// ```moonbit
-///  let logs = new()
+///  let logs = UndoLogs::new()
 ///  let new_logs = [newElem(0), setElem(1, "test")]
 ///  logs.extend(new_logs.iter())
 ///  assert_true(logs.logs.length() == 2)
@@ -148,7 +148,7 @@ pub fn[T] extend(self : UndoLogs[T], logs : Iter[Undo[T]]) -> Unit {
 /// Example:
 /// 
 /// ```moonbit
-/// let logs = new()
+/// let logs = UndoLogs::new()
 /// let s1 = logs.start_snapshot()
 /// logs.push(newElem(0))
 /// logs.push(setElem(1, "test"))
@@ -170,7 +170,7 @@ pub fn[T] action_since_snapshot(
 /// Example:
 /// 
 /// ```moonbit
-/// let logs = new()
+/// let logs = UndoLogs::new()
 /// let s1 = logs.start_snapshot()
 /// assert_false(logs.has_changes(s1))
 /// logs.push(setElem(2, "another_test"))
@@ -186,7 +186,7 @@ pub fn[T] has_changes(self : UndoLogs[T], snapshot : Snapshot) -> Bool {
 /// Example:
 /// 
 /// ```moonbit
-/// let logs = new()
+/// let logs = UndoLogs::new()
 /// let s1 = logs.start_snapshot()
 /// logs.push(newElem(0))
 /// logs.push(setElem(1, "test"))
@@ -211,7 +211,7 @@ fn[T] assert_valid_snapshot(self : UndoLogs[T], snapshot : Snapshot) -> Unit {
 /// Example:
 /// 
 /// ```moonbit
-/// let logs = new()
+/// let logs = UndoLogs::new()
 /// let s1 = logs.start_snapshot()
 /// logs.push(newElem(0))
 /// logs.push(setElem(1, "test"))
@@ -236,7 +236,7 @@ pub fn[T] commit(self : UndoLogs[T], snapshot : Snapshot) -> Unit {
 /// Example:
 /// 
 /// ```moonbit
-/// let logs = new()
+/// let logs = UndoLogs::new()
 /// let _ = logs.start_snapshot()
 /// logs.push(newElem(0))
 /// logs.push(setElem(1, "test"))
@@ -264,7 +264,7 @@ pub fn[T] rollback_to(
 /// Example:
 /// 
 /// ```moonbit
-/// let logs = new()
+/// let logs = UndoLogs::new()
 /// logs.push(newElem(0))
 /// logs.push(setElem(1, "test"))
 /// let popped = logs.pop().unwrap()
@@ -281,7 +281,7 @@ pub fn[T] pop(self : UndoLogs[T]) -> Undo[T]? {
 /// Example:
 /// 
 /// ```moonbit
-/// let logs = new()
+/// let logs = UndoLogs::new()
 /// logs.push(newElem(0))
 /// logs.push(setElem(1, "test"))
 /// let last = logs.last().unwrap()
