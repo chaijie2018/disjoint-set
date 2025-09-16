@@ -254,10 +254,7 @@ pub fn[T] rollback_to(
 ) -> Array[Undo[T]] {
   self.assert_valid_snapshot(snapshot)
   let logs = self.action_since_snapshot(snapshot).to_array()
-  for _ in 0..<logs.length() {
-    let _ = self.pop()
-
-  }
+  logs.each(_ => self.pop() |> ignore)
   logs
 }
 
