@@ -7,7 +7,7 @@
 ```moonbit
 ///|
 test "UnificationTable::union_test" {
-  let table = new(capacity=5)
+  let table = UnificationTable::new(capacity=5)
   for i in 0..<5 {
     table.push(i)
   }
@@ -28,7 +28,7 @@ test "UnificationTable::union_test" {
 ```moonbit
 ///|
 test "UnificationTable::snapshot_unite_test" {
-  let table = new(capacity=5)
+  let table = UnificationTable::new(capacity=5)
   let _ = table.start_snapshot()
   for i in 0..<5 {
     table.push(i)
