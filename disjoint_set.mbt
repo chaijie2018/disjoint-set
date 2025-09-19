@@ -1,3 +1,18 @@
+/// Disjoint-set implementation. The main type is `UnificationTable`.
+/// 
+/// It features an abstraction over "keys" and "values," enabling it
+/// to handle not only classic set union and find operations but also
+/// more complex unification needs, such as carrying information in
+/// equivalence classes during type inference.
+/// 
+/// Each equivalence set's representative element (root) can be associated
+/// with a "value" to carry extra information for that set. For instance, 
+/// in constraint solving or typeunification, this value can store 
+/// known type information or constraint results, and these values are merged  
+/// when two keys are unified. If you only need the functionality of a "pure" 
+/// union-find data structure (grouping elements without extra information),
+///  you can set the `Value` to `()`, indicating that no value is carried.
+
 ///|
 pub struct VarIndex {
   index : Int
@@ -86,7 +101,11 @@ pub fn[T] VarValue::redirect(self : VarValue[T], to : VarIndex) -> VarValue[T] {
 /// inspect(var_value.value, content="100")
 /// inspect(var_value.rank, content="1")
 /// ```
-pub fn[T] VarValue::root(self : VarValue[T], rank : Int, value : T) -> VarValue[T] {
+pub fn[T] VarValue::root(
+  self : VarValue[T],
+  rank : Int,
+  value : T,
+) -> VarValue[T] {
   VarValue::new(value, rank, self.parent)
 }
 
@@ -163,7 +182,11 @@ pub fn[T] UnificationTable::new(capacity~ : Int) -> UnificationTable[T] {
 /// assert_true(table.values.length() == 1)
 /// ```
 pub fn[T] UnificationTable::push(self : UnificationTable[T], value : T) -> Unit {
-  self.values.push({ value, rank: 0, parent: VarIndex::new(self.values.length()) })
+  self.values.push({
+    value,
+    rank: 0,
+    parent: VarIndex::new(self.values.length()),
+  })
 }
 
 ///|
@@ -183,7 +206,10 @@ pub fn[T] UnificationTable::push(self : UnificationTable[T], value : T) -> Unit 
 /// table.push_var(var_value)
 /// inspect(table.values.length(), content="1")
 /// ```
-pub fn[T] UnificationTable::push_var(self : UnificationTable[T], value : VarValue[T]) -> Unit {
+pub fn[T] UnificationTable::push_var(
+  self : UnificationTable[T],
+  value : VarValue[T],
+) -> Unit {
   self.values.push(value)
 }
 
@@ -208,7 +234,10 @@ pub fn[T] UnificationTable::push_var(self : UnificationTable[T], value : VarValu
 /// )
 /// inspect(table.get(1), content="None")
 /// ```
-pub fn[T] UnificationTable::get(self : UnificationTable[T], index : Int) -> VarValue[T]? {
+pub fn[T] UnificationTable::get(
+  self : UnificationTable[T],
+  index : Int,
+) -> VarValue[T]? {
   self.values.get(index)
 }
 
@@ -231,7 +260,10 @@ pub fn[T] UnificationTable::get(self : UnificationTable[T], index : Int) -> VarV
 /// table.push(42)
 /// inspect(table.index(0).index, content="0")
 /// ```
-pub fn[T] UnificationTable::index(self : UnificationTable[T], index : Int) -> VarIndex {
+pub fn[T] UnificationTable::index(
+  self : UnificationTable[T],
+  index : Int,
+) -> VarIndex {
   if index < 0 || index >= self.values.length() {
     abort("Index out of bounds")
   }
@@ -257,7 +289,10 @@ pub fn[T] UnificationTable::index(self : UnificationTable[T], index : Int) -> Va
 ///   content="VarValue { value: 42, rank: 0, parent: VarIndex { index: 0 } }",
 /// )
 /// ```
-pub fn[T] UnificationTable::value(self : UnificationTable[T], index : VarIndex) -> VarValue[T] {
+pub fn[T] UnificationTable::value(
+  self : UnificationTable[T],
+  index : VarIndex,
+) -> VarValue[T] {
   self.get(index.index).unwrap()
 }
 
@@ -533,9 +568,7 @@ pub fn[T] UnificationTable::find_root(
 /// let _ = table.start_snapshot()
 /// assert_true(table.in_snapshot())
 /// ```
-pub fn[T] UnificationTable::in_snapshot(
-  self : UnificationTable[T],
-) -> Bool {
+pub fn[T] UnificationTable::in_snapshot(self : UnificationTable[T]) -> Bool {
   self.values.in_snapshot()
 }
 

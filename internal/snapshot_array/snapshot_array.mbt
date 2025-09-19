@@ -22,7 +22,10 @@ pub fn[T] SnapshotArray::new(capacity? : Int = 0) -> SnapshotArray[T] {
 }
 
 ///|
-pub fn[T] SnapshotArray::from_iter(iter : Iter[T], capacity? : Int = 0) -> SnapshotArray[T] {
+pub fn[T] SnapshotArray::from_iter(
+  iter : Iter[T],
+  capacity? : Int = 0,
+) -> SnapshotArray[T] {
   let arr = SnapshotArray::new(capacity~)
   arr.extend(iter)
   arr
@@ -206,7 +209,10 @@ pub fn[T] set(self : SnapshotArray[T], index : Int, value : T) -> Unit {
 /// arr.rollback_to(snapshot)
 /// inspect(arr.get(0).unwrap(), content="1")
 /// ```
-pub fn[T] SnapshotArray::set_all(self : SnapshotArray[T], func : (T) -> T) -> Unit {
+pub fn[T] SnapshotArray::set_all(
+  self : SnapshotArray[T],
+  func : (T) -> T,
+) -> Unit {
   if self.in_snapshot() {
     for i in 0..<self.values.length() {
       let new_value = func(self.values[i])
@@ -278,7 +284,10 @@ pub fn[T] SnapshotArray::action_since_snapshot(
 /// inspect(arr.length(), content="1")
 /// inspect(arr.get(0).unwrap(), content="1")
 /// ```
-pub fn[T] SnapshotArray::rollback_to(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
+pub fn[T] SnapshotArray::rollback_to(
+  self : SnapshotArray[T],
+  snapshot : Snapshot,
+) -> Unit {
   let actions = self.action_since_snapshot(snapshot)
   let count = actions.length()
   for _ in 0..<count {
@@ -304,7 +313,10 @@ pub fn[T] SnapshotArray::rollback_to(self : SnapshotArray[T], snapshot : Snapsho
 /// let _ = arr.record(@undo_logs.Undo::NewElem(0))
 /// inspect(arr.action_since_snapshot(snapshot).length(), content="1")
 /// ```
-pub fn[T] SnapshotArray::record(self : SnapshotArray[T], undo : @undo_logs.Undo[T]) -> Bool {
+pub fn[T] SnapshotArray::record(
+  self : SnapshotArray[T],
+  undo : @undo_logs.Undo[T],
+) -> Bool {
   if self.in_snapshot() {
     self.logs.push(undo)
     return true
@@ -340,7 +352,10 @@ pub fn[T] SnapshotArray::record(self : SnapshotArray[T], undo : @undo_logs.Undo[
 /// arr.rollback_to(snapshot1)
 /// inspect(arr.length(), content="0")
 /// ```
-pub fn[T] SnapshotArray::commit(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
+pub fn[T] SnapshotArray::commit(
+  self : SnapshotArray[T],
+  snapshot : Snapshot,
+) -> Unit {
   self.logs.commit(snapshot.undo_len)
 }
 
