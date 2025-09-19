@@ -14,7 +14,7 @@ test "UnificationTable::new" {
 ///|
 test "UnificationTable::push_var" {
   let table : UnificationTable[Int] = UnificationTable::new(capacity=5)
-  let var_value = VarValue::new(42, 0, new_index(0))
+  let var_value = VarValue::new(42, 0, VarIndex::new(0))
   table.push_var(var_value)
   inspect(table.values.length(), content="1")
 }
@@ -48,7 +48,7 @@ test "panic UnificationTable::index/out_of_bounds" {
 test "UnificationTable::value" {
   let table : UnificationTable[Int] = UnificationTable::new(capacity=5)
   table.push(42)
-  let index = new_index(0)
+  let index = VarIndex::new(0)
   inspect(
     table.value(index),
     content="VarValue { value: 42, rank: 0, parent: VarIndex { index: 0 } }",
@@ -77,17 +77,17 @@ test "UnificationTable::reset" {
   let table : UnificationTable[Int] = UnificationTable::new(capacity=2)
   table.push(1)
   table.push(2)
-  let _ = table.unite(new_index(0), new_index(1), 42)
+  let _ = table.unite(VarIndex::new(0), VarIndex::new(1), 42)
   table.reset()
-  inspect(table.unioned(new_index(0), new_index(1)), content="false")
+  inspect(table.unioned(VarIndex::new(0), VarIndex::new(1)), content="false")
 }
 
 ///|
 test "UnificationTable::set" {
   let table : UnificationTable[Int] = UnificationTable::new(capacity=5)
   table.push(42)
-  let new_value = VarValue::new(100, 0, new_index(0))
-  table.set(new_index(0), new_value)
+  let new_value = VarValue::new(100, 0, VarIndex::new(0))
+  table.set(VarIndex::new(0), new_value)
   inspect(
     table.get(0),
     content="Some(VarValue { value: 100, rank: 0, parent: VarIndex { index: 0 } })",
@@ -98,7 +98,7 @@ test "UnificationTable::set" {
 test "UnificationTable::update" {
   let table : UnificationTable[Int] = UnificationTable::new(capacity=5)
   table.push(42)
-  table.update(new_index(0), fn(val) { val.root(val.rank, 100) })
+  table.update(VarIndex::new(0), fn(val) { val.root(val.rank, 100) })
   inspect(
     table.get(0),
     content="Some(VarValue { value: 100, rank: 0, parent: VarIndex { index: 0 } })",
@@ -110,8 +110,8 @@ test "UnificationTable::redirect_root" {
   let table : UnificationTable[Int] = UnificationTable::new(capacity=2)
   table.push(1)
   table.push(2)
-  table.redirect_root(1, new_index(0), new_index(1), 42)
-  inspect(table.find(new_index(0)).index, content="1")
+  table.redirect_root(1, VarIndex::new(0), VarIndex::new(1), 42)
+  inspect(table.find(VarIndex::new(0)).index, content="1")
 }
 
 ///|
@@ -120,7 +120,7 @@ test "UnificationTable::unioned" {
   table.push(1)
   table.push(2)
   let _ = table.unite(table.index(0), table.index(1), 42)
-  inspect(table.unioned(new_index(0), new_index(1)), content="true")
+  inspect(table.unioned(VarIndex::new(0), VarIndex::new(1)), content="true")
 }
 
 ///|
@@ -202,7 +202,7 @@ test "UnificationTable::commit" {
 
 ///|
 test "VarValue::new" {
-  let index = new_index(0)
+  let index = VarIndex::new(0)
   let var_value = VarValue::new(42, 0, index)
   inspect(var_value.value, content="42")
   inspect(var_value.rank, content="0")
@@ -211,8 +211,8 @@ test "VarValue::new" {
 
 ///|
 test "VarValue::redirect" {
-  let old_parent = new_index(0)
-  let new_parent = new_index(1)
+  let old_parent = VarIndex::new(0)
+  let new_parent = VarIndex::new(1)
   let var_value = VarValue::new(42, 0, old_parent)
   let var_value = var_value.redirect(new_parent)
   inspect(var_value.parent.index, content="1")
@@ -220,7 +220,7 @@ test "VarValue::redirect" {
 
 ///|
 test "VarValue::root" {
-  let index = new_index(0)
+  let index = VarIndex::new(0)
   let var_value = VarValue::new(42, 0, index)
   let var_value = var_value.root(1, 100)
   inspect(var_value.value, content="100")
@@ -229,7 +229,7 @@ test "VarValue::root" {
 
 ///|
 test "VarValue::modify" {
-  let index = new_index(0)
+  let index = VarIndex::new(0)
   let var_value = VarValue::new(42, 0, index)
   var_value.modify(100)
   inspect(var_value.value, content="100")

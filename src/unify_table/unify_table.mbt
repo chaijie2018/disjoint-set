@@ -1,14 +1,4 @@
 ///|
-pub struct UnificationTable[T] {
-  values : @snapshot_array.SnapshotArray[VarValue[T]]
-}
-
-///|
-pub struct Snapshot {
-  snapshot : @snapshot_array.Snapshot
-}
-
-///|
 pub struct VarIndex {
   index : Int
 }
@@ -18,6 +8,16 @@ pub struct VarValue[T] {
   mut value : T
   mut rank : Int
   mut parent : VarIndex
+}
+
+///|
+pub struct UnificationTable[T] {
+  values : @snapshot_array.SnapshotArray[VarValue[T]]
+}
+
+///|
+pub struct Snapshot {
+  snapshot : @snapshot_array.Snapshot
 }
 
 ///|
@@ -35,7 +35,7 @@ pub struct VarValue[T] {
 /// Example:
 ///
 /// ```moonbit
-/// let index = new_index(0)
+/// let index = VarIndex::new(0)
 /// let var_value = VarValue::new(42, 0, index)
 /// inspect(var_value.value, content="42")
 /// inspect(var_value.rank, content="0")
@@ -59,8 +59,8 @@ pub fn[T] VarValue::new(
 /// Example:
 ///
 /// ```moonbit
-/// let old_parent = new_index(0)
-/// let new_parent = new_index(1)
+/// let old_parent = VarIndex::new(0)
+/// let new_parent = VarIndex::new(1)
 /// let var_value = VarValue::new(42, 0, old_parent)
 /// let var_value = var_value.redirect(new_parent)
 /// inspect(var_value.parent.index, content="1")
@@ -80,7 +80,7 @@ pub fn[T] VarValue::redirect(self : VarValue[T], to : VarIndex) -> VarValue[T] {
 /// Example:
 ///
 /// ```moonbit
-/// let index = new_index(0)
+/// let index = VarIndex::new(0)
 /// let var_value = VarValue::new(42, 0, index)
 /// let var_value = var_value.root(1, 100)
 /// inspect(var_value.value, content="100")
@@ -98,7 +98,7 @@ pub fn[T] VarValue::root(self : VarValue[T], rank : Int, value : T) -> VarValue[
 /// 
 /// Example:
 /// ```moonbit
-/// let index = new_index(0)
+/// let index = VarIndex::new(0)
 /// let var_value = VarValue::new(42, 0, index)
 /// var_value.modify(100)
 /// inspect(var_value.value, content="100")
@@ -109,7 +109,7 @@ pub fn[T] modify(self : VarValue[T], value : T) -> Unit {
 
 ///|
 /// Creates a new `VarIndex` with the specified index.
-pub fn new_index(index : Int) -> VarIndex {
+pub fn VarIndex::new(index : Int) -> VarIndex {
   { index, }
 }
 
@@ -125,7 +125,7 @@ pub impl[T : Eq] Eq for VarValue[T] with equal(self, other) {
 }
 
 ///|
-impl Eq for VarIndex with equal(self, other) {
+pub impl Eq for VarIndex with equal(self, other) {
   return self.index == other.index
 }
 
@@ -163,7 +163,7 @@ pub fn[T] UnificationTable::new(capacity~ : Int) -> UnificationTable[T] {
 /// assert_true(table.values.length() == 1)
 /// ```
 pub fn[T] UnificationTable::push(self : UnificationTable[T], value : T) -> Unit {
-  self.values.push({ value, rank: 0, parent: new_index(self.values.length()) })
+  self.values.push({ value, rank: 0, parent: VarIndex::new(self.values.length()) })
 }
 
 ///|
@@ -179,7 +179,7 @@ pub fn[T] UnificationTable::push(self : UnificationTable[T], value : T) -> Unit 
 ///
 /// ```moonbit
 /// let table : UnificationTable[Int] = UnificationTable::new(capacity=5)
-/// let var_value = VarValue::new(42, 0, new_index(0))
+/// let var_value = VarValue::new(42, 0, VarIndex::new(0))
 /// table.push_var(var_value)
 /// inspect(table.values.length(), content="1")
 /// ```
@@ -251,7 +251,7 @@ pub fn[T] UnificationTable::index(self : UnificationTable[T], index : Int) -> Va
 /// ```moonbit
 /// let table : UnificationTable[Int] = UnificationTable::new(capacity=5)
 /// table.push(42)
-/// let index = new_index(0)
+/// let index = VarIndex::new(0)
 /// inspect(
 ///   table.value(index),
 ///   content="VarValue { value: 42, rank: 0, parent: VarIndex { index: 0 } }",
@@ -272,17 +272,17 @@ pub fn[T] UnificationTable::value(self : UnificationTable[T], index : VarIndex) 
 /// let table : UnificationTable[Int] = UnificationTable::new(capacity=2)
 /// table.push(1)
 /// table.push(2)
-/// let _ = table.unite(new_index(0), new_index(1), 42)
+/// let _ = table.unite(VarIndex::new(0), VarIndex::new(1), 42)
 /// table.reset()
 /// inspect(
-///   table.unioned(new_index(0), new_index(1)),
+///   table.unioned(VarIndex::new(0), VarIndex::new(1)),
 ///   content="false",
 /// )
 /// ```
 pub fn[T] UnificationTable::reset(self : UnificationTable[T]) -> Unit {
   for index, value in self.values.values {
     value.rank = 0
-    value.parent = new_index(index)
+    value.parent = VarIndex::new(index)
   }
   self.values.commit_all()
 }
@@ -301,8 +301,8 @@ pub fn[T] UnificationTable::reset(self : UnificationTable[T]) -> Unit {
 /// ```moonbit
 /// let table : UnificationTable[Int] = UnificationTable::new(capacity=5)
 /// table.push(42)
-/// let new_value = VarValue::new(100, 0, new_index(0))
-/// table.set(new_index(0), new_value)
+/// let new_value = VarValue::new(100, 0, VarIndex::new(0))
+/// table.set(VarIndex::new(0), new_value)
 /// inspect(
 ///   table.get(0),
 ///   content="Some(VarValue { value: 100, rank: 0, parent: VarIndex { index: 0 } })",
@@ -330,7 +330,7 @@ pub fn[T] UnificationTable::set(
 /// ```moonbit
 /// let table : UnificationTable[Int] = UnificationTable::new(capacity=5)
 /// table.push(42)
-/// table.update(new_index(0), fn(val) { val.modify(100); val })
+/// table.update(VarIndex::new(0), fn(val) { val.modify(100); val })
 /// inspect(
 ///   table.get(0),
 ///   content="Some(VarValue { value: 100, rank: 0, parent: VarIndex { index: 0 } })",
@@ -362,8 +362,8 @@ pub fn[T] update(
 /// let table : UnificationTable[Int] = UnificationTable::new(capacity=2)
 /// table.push(1)
 /// table.push(2)
-/// table.redirect_root(1, new_index(0), new_index(1), 42)
-/// inspect(table.find(new_index(0)).index, content="1")
+/// table.redirect_root(1, VarIndex::new(0), VarIndex::new(1), 42)
+/// inspect(table.find(VarIndex::new(0)).index, content="1")
 /// ```
 pub fn[T] UnificationTable::redirect_root(
   self : UnificationTable[T],
@@ -395,7 +395,7 @@ pub fn[T] UnificationTable::redirect_root(
 /// table.push(2)
 /// let _ = table.unite(table.index(0),table.index(1), 42)
 /// inspect(
-///   table.unioned(new_index(0), new_index(1)),
+///   table.unioned(VarIndex::new(0), VarIndex::new(1)),
 ///   content="true",
 /// )
 /// ```
@@ -626,7 +626,7 @@ pub fn[T] UnificationTable::op_set(
   index : Int,
   value : VarValue[T],
 ) -> Unit {
-  self.set(new_index(index), value)
+  self.set(VarIndex::new(index), value)
 }
 
 ///|

@@ -6,7 +6,7 @@ pub struct SnapshotArray[T] {
 
 ///|
 pub struct Snapshot {
-  undo_count : Int
+  undo_len : Int
 }
 
 ///|
@@ -124,7 +124,7 @@ pub fn[T] SnapshotArray::push(self : SnapshotArray[T], elem : T) -> Unit {
   let len = self.values.length()
   self.values.push(elem)
   if self.in_snapshot() {
-    self.logs.push(@logs.newElem(len))
+    self.logs.push(@logs.Undo::NewElem(len))
   }
 }
 
@@ -187,7 +187,7 @@ pub fn[T] set(self : SnapshotArray[T], index : Int, value : T) -> Unit {
   let old_value = self.values[index]
   self.values[index] = value
   if self.in_snapshot() {
-    self.logs.push(@logs.setElem(index, old_value))
+    self.logs.push(@logs.Undo::SetElem(index, old_value))
   }
 }
 
@@ -210,7 +210,7 @@ pub fn[T] SnapshotArray::set_all(self : SnapshotArray[T], func : (T) -> T) -> Un
   if self.in_snapshot() {
     for i in 0..<self.values.length() {
       let new_value = func(self.values[i])
-      self.logs.push(@logs.setElem(i, self.values[i]))
+      self.logs.push(@logs.Undo::SetElem(i, self.values[i]))
       self.values[i] = new_value
     }
   } else {
@@ -237,7 +237,7 @@ pub fn[T] SnapshotArray::set_all(self : SnapshotArray[T], func : (T) -> T) -> Un
 /// inspect(arr.length(), content="1")
 /// ```
 pub fn[T] start_snapshot(self : SnapshotArray[T]) -> Snapshot {
-  { undo_count: self.logs.start_snapshot() }
+  { undo_len: self.logs.start_snapshot() }
 }
 
 ///|
@@ -257,7 +257,7 @@ pub fn[T] SnapshotArray::action_since_snapshot(
   self : SnapshotArray[T],
   snapshot : Snapshot,
 ) -> ArrayView[@logs.Undo[T]] {
-  self.logs.action_since_snapshot(snapshot.undo_count)
+  self.logs.action_since_snapshot(snapshot.undo_len)
 }
 
 ///|
@@ -301,7 +301,7 @@ pub fn[T] SnapshotArray::rollback_to(self : SnapshotArray[T], snapshot : Snapsho
 /// ```moonbit
 /// let arr : SnapshotArray[Int] = SnapshotArray::new()
 /// let snapshot = arr.start_snapshot()
-/// let _ = arr.record(@logs.newElem(0))
+/// let _ = arr.record(@logs.Undo::NewElem(0))
 /// inspect(arr.action_since_snapshot(snapshot).length(), content="1")
 /// ```
 pub fn[T] SnapshotArray::record(self : SnapshotArray[T], undo : @logs.Undo[T]) -> Bool {
@@ -341,7 +341,7 @@ pub fn[T] SnapshotArray::record(self : SnapshotArray[T], undo : @logs.Undo[T]) -
 /// inspect(arr.length(), content="0")
 /// ```
 pub fn[T] SnapshotArray::commit(self : SnapshotArray[T], snapshot : Snapshot) -> Unit {
-  self.logs.commit(snapshot.undo_count)
+  self.logs.commit(snapshot.undo_len)
 }
 
 ///|
