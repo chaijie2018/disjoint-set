@@ -1,6 +1,6 @@
 ///|
 pub struct SnapshotArray[T] {
-  logs : @logs.UndoLogs[T]
+  logs : @undo_logs.UndoLogs[T]
   values : Array[T]
 }
 
@@ -18,7 +18,7 @@ pub struct Snapshot {
 /// assert_true(arr.length() == 0)
 /// ```
 pub fn[T] SnapshotArray::new(capacity? : Int = 0) -> SnapshotArray[T] {
-  { logs: @logs.UndoLogs::new(), values: Array::new(capacity~) }
+  { logs: @undo_logs.UndoLogs::new(), values: Array::new(capacity~) }
 }
 
 ///|
@@ -124,7 +124,7 @@ pub fn[T] SnapshotArray::push(self : SnapshotArray[T], elem : T) -> Unit {
   let len = self.values.length()
   self.values.push(elem)
   if self.in_snapshot() {
-    self.logs.push(@logs.Undo::NewElem(len))
+    self.logs.push(@undo_logs.Undo::NewElem(len))
   }
 }
 
@@ -187,7 +187,7 @@ pub fn[T] set(self : SnapshotArray[T], index : Int, value : T) -> Unit {
   let old_value = self.values[index]
   self.values[index] = value
   if self.in_snapshot() {
-    self.logs.push(@logs.Undo::SetElem(index, old_value))
+    self.logs.push(@undo_logs.Undo::SetElem(index, old_value))
   }
 }
 
@@ -210,7 +210,7 @@ pub fn[T] SnapshotArray::set_all(self : SnapshotArray[T], func : (T) -> T) -> Un
   if self.in_snapshot() {
     for i in 0..<self.values.length() {
       let new_value = func(self.values[i])
-      self.logs.push(@logs.Undo::SetElem(i, self.values[i]))
+      self.logs.push(@undo_logs.Undo::SetElem(i, self.values[i]))
       self.values[i] = new_value
     }
   } else {
@@ -256,7 +256,7 @@ pub fn[T] start_snapshot(self : SnapshotArray[T]) -> Snapshot {
 pub fn[T] SnapshotArray::action_since_snapshot(
   self : SnapshotArray[T],
   snapshot : Snapshot,
-) -> ArrayView[@logs.Undo[T]] {
+) -> ArrayView[@undo_logs.Undo[T]] {
   self.logs.action_since_snapshot(snapshot.undo_len)
 }
 
@@ -301,10 +301,10 @@ pub fn[T] SnapshotArray::rollback_to(self : SnapshotArray[T], snapshot : Snapsho
 /// ```moonbit
 /// let arr : SnapshotArray[Int] = SnapshotArray::new()
 /// let snapshot = arr.start_snapshot()
-/// let _ = arr.record(@logs.Undo::NewElem(0))
+/// let _ = arr.record(@undo_logs.Undo::NewElem(0))
 /// inspect(arr.action_since_snapshot(snapshot).length(), content="1")
 /// ```
-pub fn[T] SnapshotArray::record(self : SnapshotArray[T], undo : @logs.Undo[T]) -> Bool {
+pub fn[T] SnapshotArray::record(self : SnapshotArray[T], undo : @undo_logs.Undo[T]) -> Bool {
   if self.in_snapshot() {
     self.logs.push(undo)
     return true

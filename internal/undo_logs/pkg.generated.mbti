@@ -1,17 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "BigOrangeQWQ/unification_table/undo_logs"
+package "chaijie/disjoint-set/internal/undo_logs"
 
 // Values
 fn[T] from_iter(Iter[Undo[T]], capacity? : Int) -> UndoLogs[T]
 
-fn[T] newElem(Int) -> Undo[T]
-
-fn[T] setElem(Int, T) -> Undo[T]
-
 // Errors
 
 // Types and methods
-pub enum Undo[T] {
+pub(all) enum Undo[T] {
   NewElem(Int)
   SetElem(Int, T)
 }

@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "BigOrangeQWQ/unification_table/snapshot_array"
+package "chaijie/disjoint-set/internal/snapshot_array"
 
 import(
-  "BigOrangeQWQ/unification_table/undo_logs"
+  "chaijie/disjoint-set/internal/undo_logs"
 )
 
 // Values
@@ -11,7 +11,7 @@ import(
 
 // Types and methods
 pub struct Snapshot {
-  undo_count : Int
+  undo_len : Int
 }
 
 pub struct SnapshotArray[T] {

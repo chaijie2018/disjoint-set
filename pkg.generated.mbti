@@ -1,13 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "BigOrangeQWQ/unification_table/unify_table"
+package "chaijie/disjoint-set"
 
 import(
-  "BigOrangeQWQ/unification_table/snapshot_array"
+  "chaijie/disjoint-set/internal/snapshot_array"
 )
 
 // Values
-fn new_index(Int) -> VarIndex
-
 fn new_snapshot(@snapshot_array.Snapshot) -> Snapshot
 
 // Errors
@@ -45,6 +43,8 @@ impl[T : Show] Show for UnificationTable[T]
 pub struct VarIndex {
   index : Int
 }
+fn VarIndex::new(Int) -> Self
+impl Eq for VarIndex
 impl Show for VarIndex
 
 pub struct VarValue[T] {
